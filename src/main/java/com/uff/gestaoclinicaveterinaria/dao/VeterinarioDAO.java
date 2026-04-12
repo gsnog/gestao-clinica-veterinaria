@@ -1,0 +1,4 @@
+package com.uff.gestaoclinicaveterinaria.dao;
+
+public interface VeterinarioDAO {
+}
