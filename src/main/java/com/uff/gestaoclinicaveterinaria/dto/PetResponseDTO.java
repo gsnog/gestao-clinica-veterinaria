@@ -1,4 +1,6 @@
 package com.uff.gestaoclinicaveterinaria.dto;
 
-public record PetResponseDTO() {
+import java.time.LocalDate;
+
+public record PetResponseDTO(Long id, String nome, String raca, LocalDate dataNascimento, String tutorNome, String tutorTelefone) {
 }
