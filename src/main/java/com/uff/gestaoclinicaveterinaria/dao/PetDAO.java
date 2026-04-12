@@ -1,4 +1,4 @@
-package com.uff.gestaoclinicaveterinaria.dto;
+package com.uff.gestaoclinicaveterinaria.dao;
 
 import com.uff.gestaoclinicaveterinaria.model.Pet;
 
