@@ -1,6 +1,7 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
 import com.uff.gestaoclinicaveterinaria.dao.TutorDAO;
+import com.uff.gestaoclinicaveterinaria.dao.TutorDAOImpl;
 import com.uff.gestaoclinicaveterinaria.dto.TutorRequestDTO;
 import com.uff.gestaoclinicaveterinaria.model.Tutor;
 import jakarta.servlet.ServletException;
