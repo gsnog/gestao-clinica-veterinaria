@@ -1,0 +1,69 @@
+<%@ include file="components/head.jsp" %>
+<%@ include file="components/sidebar.jsp" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.uff.gestaoclinicaveterinaria.model.Pet" %>
+
+<main class="main">
+
+<div class="topbar">
+    <div>
+        <div class="page-title">Pets</div>
+        <div class="page-subtitle">Gerencie os pets cadastrados</div>
+    </div>
+
+    <a class="btn btn-primary" href="${pageContext.request.contextPath}/form-pet.jsp">
+        + Novo Pet
+    </a>
+</div>
+
+<div class="card">
+<table>
+<thead>
+<tr>
+    <th>Pet</th>
+    <th>Raça</th>
+    <th>Nascimento</th>
+    <th>Tutor</th>
+    <th>Ações</th>
+</tr>
+</thead>
+
+<tbody>
+<%
+List<Pet> lista = (List<Pet>) request.getAttribute("listaDePets");
+
+if (lista != null) {
+    for (Pet p : lista) {
+%>
+<tr>
+    <td>
+        <div class="pet-cell">
+            <div class="pet-avatar">🐾</div>
+            <div>
+                <div class="pet-name"><%= p.getNome() %></div>
+            </div>
+        </div>
+    </td>
+    <td><%= p.getRaca() %></td>
+    <td><%= p.getDataNascimento() %></td>
+    <td>#<%= p.getTutor() != null ? p.getTutor().getId() : "" %></td>
+
+    <td class="actions">
+        <a class="btn btn-edit"
+           href="pets?acao=editar&id=<%= p.getId() %>">Editar</a>
+
+        <a class="btn btn-danger"
+           href="pets?acao=deletar&id=<%= p.getId() %>">Excluir</a>
+    </td>
+</tr>
+<%
+    }
+}
+%>
+</tbody>
+</table>
+</div>
+
+</main>
+</body>
+</html>
