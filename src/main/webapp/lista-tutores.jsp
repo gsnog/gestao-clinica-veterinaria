@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
 <%@ page import="java.util.List" %>
@@ -22,6 +23,7 @@
 <tr>
     <th>Nome</th>
     <th>Telefone</th>
+    <th>ID</th>
     <th>Ações</th>
 </tr>
 </thead>
@@ -36,6 +38,7 @@ if (lista != null) {
 <tr>
     <td><%= t.getNome() %></td>
     <td><%= t.getTelefone() %></td>
+     <td class="table-id">#<%= t.getId() %></td>
 
     <td class="actions">
         <a class="btn btn-edit"
