@@ -24,6 +24,7 @@
     <th>Nome</th>
     <th>CRMV</th>
     <th>Especialidade</th>
+    <th>ID</th>
     <th>Ações</th>
 </tr>
 </thead>
@@ -39,6 +40,7 @@ if (lista != null) {
     <td><%= v.getNome() %></td>
     <td><%= v.getCrmv() %></td>
     <td><%= v.getEspecialidade() %></td>
+     <td class="table-id">#<%= v.getId() %></td>
 
     <td class="actions">
         <a class="btn btn-edit"
