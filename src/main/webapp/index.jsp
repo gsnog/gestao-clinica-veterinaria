@@ -11,12 +11,19 @@
     </div>
 </div>
 
+<%
+Integer totalPets = (Integer) request.getAttribute("totalPets");
+Integer totalTutores = (Integer) request.getAttribute("totalTutores");
+Integer totalVets = (Integer) request.getAttribute("totalVets");
+Integer totalConsultas = (Integer) request.getAttribute("totalConsultas");
+%>
+
 <div class="stats-grid">
 
 <div class="stat-card">
     <div class="stat-icon rose">🐶</div>
     <div>
-        <div class="stat-number">—</div>
+        <div class="stat-number"><%= totalPets != null ? totalPets : 0 %></div>
         <div class="stat-label">Pets</div>
     </div>
 </div>
@@ -24,7 +31,7 @@
 <div class="stat-card">
     <div class="stat-icon lav">👤</div>
     <div>
-        <div class="stat-number">—</div>
+        <div class="stat-number"><%= totalTutores != null ? totalTutores : 0 %></div>
         <div class="stat-label">Tutores</div>
     </div>
 </div>
@@ -32,7 +39,7 @@
 <div class="stat-card">
     <div class="stat-icon sand">🩺</div>
     <div>
-        <div class="stat-number">—</div>
+        <div class="stat-number"><%= totalVets != null ? totalVets : 0 %></div>
         <div class="stat-label">Veterinários</div>
     </div>
 </div>
@@ -40,7 +47,7 @@
 <div class="stat-card">
     <div class="stat-icon mint">📋</div>
     <div>
-        <div class="stat-number">—</div>
+        <div class="stat-number"><%= totalConsultas != null ? totalConsultas : 0 %></div>
         <div class="stat-label">Consultas</div>
     </div>
 </div>
