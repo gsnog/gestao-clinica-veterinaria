@@ -656,3 +656,24 @@ tbody tr:hover td {
 .mb-16 { margin-bottom: 16px; }
 .mb-24 { margin-bottom: 24px; }
 .text-muted { color: var(--text-muted); font-size: .85rem; }
+
+.form-sidebar {
+    position: relative;
+    overflow: hidden;
+}
+
+.form-sidebar-icon-pet {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.form-sidebar-icon-pet img {
+    width: 250px;
+    object-fit: contain;
+
+    filter: drop-shadow(0 12px 15px rgba(0,0,0,.25));
+
+    transition: transform .3s ease;
+}
