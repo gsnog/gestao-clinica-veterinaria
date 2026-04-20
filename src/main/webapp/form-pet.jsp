@@ -11,7 +11,9 @@ Pet pet = (Pet) request.getAttribute("pet");
 <div class="form-card">
 
 <div class="form-sidebar">
-    <div class="form-sidebar-icon">🐶</div>
+    <div class="form-sidebar-icon-pet">
+       <img src="${pageContext.request.contextPath}/images/puppie.webp" alt="Pet"/>
+    </div>
     <div class="form-sidebar-title">Pet</div>
     <div class="form-sidebar-text">Cadastro de animal</div>
 </div>
