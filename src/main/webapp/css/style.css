@@ -677,3 +677,19 @@ tbody tr:hover td {
 
     transition: transform .3s ease;
 }
+
+.form-sidebar-vet {
+    position: absolute;
+    padding-bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.form-sidebar-vet img {
+    width: 250px;
+    object-fit: contain;
+
+    filter: drop-shadow(0 10px 70px rgba(0,0,0,.25));
+
+    transition: transform .3s ease;
+}
