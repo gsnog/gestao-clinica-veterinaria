@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
 <%@ page import="java.util.List" %>
@@ -11,7 +12,7 @@
         <div class="page-subtitle">Gerencie os pets cadastrados</div>
     </div>
 
-    <a class="btn btn-primary" href="${pageContext.request.contextPath}/form-pet.jsp">
+    <a class="btn btn-primary" href="${pageContext.request.contextPath}/pets?acao=novo">
         + Novo Pet
     </a>
 </div>
@@ -32,8 +33,20 @@
 <%
 List<Pet> lista = (List<Pet>) request.getAttribute("listaDePets");
 
+// meses em pt-BR sem ponto
+String[] meses = {"jan", "fev", "mar", "abr", "mai", "jun",
+                  "jul", "ago", "set", "out", "nov", "dez"};
+
 if (lista != null) {
     for (Pet p : lista) {
+
+        String dataFormatada = "";
+        if (p.getDataNascimento() != null) {
+            int mes = p.getDataNascimento().getMonthValue();
+            dataFormatada = p.getDataNascimento().getDayOfMonth() +
+                " de " + meses[mes - 1] +
+                " de " + p.getDataNascimento().getYear();
+        }
 %>
 <tr>
     <td>
@@ -41,12 +54,20 @@ if (lista != null) {
             <div class="pet-avatar">🐾</div>
             <div>
                 <div class="pet-name"><%= p.getNome() %></div>
+                <div class="table-id">#<%= p.getId() %></div>
             </div>
         </div>
     </td>
+
     <td><%= p.getRaca() %></td>
-    <td><%= p.getDataNascimento() %></td>
-    <td>#<%= p.getTutor() != null ? p.getTutor().getId() : "" %></td>
+
+    <td><%= dataFormatada %></td>
+
+    <td>
+        <% if (p.getTutor() != null) { %>
+            <span class="table-id">#<%= p.getTutor().getId() %></span>
+        <% } %>
+    </td>
 
     <td class="actions">
         <a class="btn btn-edit"
