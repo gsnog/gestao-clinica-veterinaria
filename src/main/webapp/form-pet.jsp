@@ -1,6 +1,10 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
 <%@ page import="com.uff.gestaoclinicaveterinaria.model.Pet" %>
+<%@ page import="com.uff.gestaoclinicaveterinaria.model.Tutor" %>
+<%@ page import="java.util.List" %>
+
 
 <main class="main">
 
@@ -12,10 +16,8 @@ Pet pet = (Pet) request.getAttribute("pet");
 
 <div class="form-sidebar">
     <div class="form-sidebar-icon-pet">
-       <img src="${pageContext.request.contextPath}/images/puppie.webp" alt="Pet"/>
+        <img src="${pageContext.request.contextPath}/images/puppie.webp" alt="Pet"/>
     </div>
-    <div class="form-sidebar-title">Pet</div>
-    <div class="form-sidebar-text">Cadastro de animal</div>
 </div>
 
 <div class="form-body">
@@ -46,13 +48,29 @@ Pet pet = (Pet) request.getAttribute("pet");
 <div class="form-row">
     <div class="form-group">
         <label>Nascimento</label>
-        <input type="date" name="dataNascimentoPet" value="<%= pet != null ? pet.getDataNascimento() : "" %>" required/>
+        <input type="date" name="dataNascimentoPet" value="<%= pet != null ? pet.getDataNascimento().toString() : "" %>" required/>
     </div>
 
     <div class="form-group">
-        <label>ID Tutor</label>
-        <input type="number" name="tutorId"
-               value="<%= pet != null && pet.getTutor()!=null ? pet.getTutor().getId() : "" %>" required/>
+        <label>Tutor</label>
+        <select name="tutorId" required>
+            <option value="">Selecione um tutor</option>
+
+            <%
+            List<Tutor> tutores = (List<Tutor>) request.getAttribute("listaTutores");
+
+            if (tutores != null) {
+                for (Tutor t : tutores) {
+            %>
+                <option value="<%= t.getId() %>"
+                    <%= pet != null && pet.getTutor()!=null && t.getId() == pet.getTutor().getId() ? "selected" : "" %>>
+                    #<%= t.getId() %> - <%= t.getNome() %>
+                </option>
+            <%
+                }
+            }
+            %>
+        </select>
     </div>
 </div>
 
