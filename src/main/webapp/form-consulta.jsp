@@ -1,13 +1,17 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
 <%@ page import="com.uff.gestaoclinicaveterinaria.model.Consulta" %>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.uff.gestaoclinicaveterinaria.model.Pet" %>
+<%@ page import="com.uff.gestaoclinicaveterinaria.model.Veterinario" %>
+<%@ page import="java.util.List" %>
 
 <main class="main">
 
 <%
 Consulta consulta = (Consulta) request.getAttribute("consulta");
+List<Pet> pets = (List<Pet>) request.getAttribute("listaPets");
+List<Veterinario> vets = (List<Veterinario>) request.getAttribute("listaVets");
 %>
 
 <div class="form-card">
@@ -40,22 +44,50 @@ Consulta consulta = (Consulta) request.getAttribute("consulta");
 
     <div class="form-group">
         <label>Motivo</label>
-        <input type="text" name="motivo" value="<%= consulta != null ? consulta.getMotivo() : "" %>" required/>
+        <input type="text" name="motivo"
+               value="<%= consulta != null ? consulta.getMotivo() : "" %>" required/>
     </div>
 </div>
 
 <div class="form-row">
+    <!-- PET -->
     <div class="form-group">
-        <label>ID Pet</label>
-        <input type="number" name="petId"
-        value="<%= consulta != null && consulta.getPet()!=null ? consulta.getPet().getId() : "" %>" required/>
+        <label>Pet</label>
+        <select name="petId" required>
+            <option value="">Selecione um pet</option>
+
+            <% if (pets != null) {
+                for (Pet p : pets) { %>
+
+                <option value="<%= p.getId() %>"
+                    <%= consulta != null && consulta.getPet()!=null && p.getId() == consulta.getPet().getId() ? "selected" : "" %>>
+                    #<%= p.getId() %> - <%= p.getNome() %>
+                </option>
+
+            <%  }
+            } %>
+        </select>
     </div>
 
+    <!-- VETERINÁRIO -->
     <div class="form-group">
-        <label>ID Veterinário</label>
-        <input type="number" name="vetId"
-        value="<%= consulta != null && consulta.getVeterinario()!=null ? consulta.getVeterinario().getId() : "" %>" required/>
+        <label>Veterinário</label>
+        <select name="vetId" required>
+            <option value="">Selecione um veterinário</option>
+
+            <% if (vets != null) {
+                for (Veterinario v : vets) { %>
+
+                <option value="<%= v.getId() %>"
+                    <%= consulta != null && consulta.getVeterinario()!=null && v.getId() == consulta.getVeterinario().getId() ? "selected" : "" %>>
+                    #<%= v.getId() %> - <%= v.getNome() %>
+                </option>
+
+            <%  }
+            } %>
+        </select>
     </div>
+
 </div>
 
 <div class="form-actions">
