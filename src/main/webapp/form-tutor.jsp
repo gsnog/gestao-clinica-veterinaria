@@ -12,9 +12,10 @@ Tutor tutor = (Tutor) request.getAttribute("tutor");
 <div class="form-card">
 
     <div class="form-sidebar">
-        <div class="form-sidebar-icon">👤</div>
-        <div class="form-sidebar-title">Tutor</div>
+    <div class="form-sidebar-icon-form">
+        <img src="${pageContext.request.contextPath}/images/tutor.webp" alt="Pet"/>
     </div>
+</div>
 
     <div class="form-body">
 
