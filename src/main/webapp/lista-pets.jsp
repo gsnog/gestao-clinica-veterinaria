@@ -41,11 +41,15 @@ if (lista != null) {
     for (Pet p : lista) {
 
         String dataFormatada = "";
+
         if (p.getDataNascimento() != null) {
+            int dia = p.getDataNascimento().getDayOfMonth();
             int mes = p.getDataNascimento().getMonthValue();
-            dataFormatada = p.getDataNascimento().getDayOfMonth() +
-                " de " + meses[mes - 1] +
-                " de " + p.getDataNascimento().getYear();
+            int ano = p.getDataNascimento().getYear();
+
+            String diaFormatado = String.format("%02d", dia);
+
+            dataFormatada = diaFormatado + " " + meses[mes - 1] + " " + ano;
         }
 %>
 <tr>
