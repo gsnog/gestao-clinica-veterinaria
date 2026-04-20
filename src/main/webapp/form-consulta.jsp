@@ -17,8 +17,9 @@ List<Veterinario> vets = (List<Veterinario>) request.getAttribute("listaVets");
 <div class="form-card">
 
 <div class="form-sidebar">
-    <div class="form-sidebar-icon">📋</div>
-    <div class="form-sidebar-title">Consulta</div>
+        <div class="form-sidebar-icon-form">
+            <img src="${pageContext.request.contextPath}/images/consulta.webp" alt="Pet"/>
+        </div>
 </div>
 
 <div class="form-body">

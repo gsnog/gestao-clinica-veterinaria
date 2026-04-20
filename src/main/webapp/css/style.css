@@ -662,30 +662,14 @@ tbody tr:hover td {
     overflow: hidden;
 }
 
-.form-sidebar-icon-pet {
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.form-sidebar-icon-pet img {
-    width: 250px;
-    object-fit: contain;
-
-    filter: drop-shadow(0 12px 15px rgba(0,0,0,.25));
-
-    transition: transform .3s ease;
-}
-
-.form-sidebar-vet {
+.form-sidebar-icon-form {
     position: absolute;
     padding-bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.form-sidebar-vet img {
+.form-sidebar-icon-form img {
     width: 250px;
     object-fit: contain;
 
