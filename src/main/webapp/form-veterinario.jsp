@@ -12,7 +12,7 @@ Veterinario vet = (Veterinario) request.getAttribute("veterinario");
 <div class="form-card">
 
 <div class="form-sidebar">
-    <div class="form-sidebar-vet">
+    <div class="form-sidebar-icon-form">
         <img src="${pageContext.request.contextPath}/images/vet.webp" alt="Pet"/>
     </div>
 </div>
