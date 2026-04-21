@@ -1,6 +1,6 @@
 -- Criação das Tabelas
 CREATE TABLE tutor (
-    id BIGINT NOT NULL, -- PK, ID Auto-incremental
+    id BIGSERIAL NOT NULL, -- PK, ID Auto-incremental
     nome VARCHAR(120) NOT NULL, -- Nome completo do tutor
     telefone VARCHAR(30) NOT NULL, -- Telefone de contato
     PRIMARY KEY (id),
@@ -8,7 +8,7 @@ CREATE TABLE tutor (
 );
 
 CREATE TABLE veterinario (
-    id BIGINT NOT NULL, -- PK, ID Auto-incremental
+    id BIGSERIAL NOT NULL, -- PK, ID Auto-incremental
     nome VARCHAR(120) NOT NULL, -- Nome do profissional
     crmv VARCHAR(30) NOT NULL, -- Registro profissional
     especialidade VARCHAR(120) NOT NULL, -- Área de atuação
@@ -17,7 +17,7 @@ CREATE TABLE veterinario (
 );
 
 CREATE TABLE pet (
-    id BIGINT NOT NULL, -- PK, ID Auto-incremental
+    id BIGSERIAL NOT NULL, -- PK, ID Auto-incremental
     nome VARCHAR(120) NOT NULL,
     raca VARCHAR(120) NOT NULL,
     data_nascimento DATE,
@@ -29,7 +29,7 @@ CREATE TABLE pet (
 );
 
 CREATE TABLE consulta (
-    id BIGINT NOT NULL, -- PK, ID Auto-incremental
+    id BIGSERIAL NOT NULL, -- PK, ID Auto-incremental
     data_consulta TIMESTAMP NOT NULL, -- Data e hora do atendimento
     motivo VARCHAR(255) NOT NULL,
     pet_id BIGINT NOT NULL, -- FK para Pet(id)
