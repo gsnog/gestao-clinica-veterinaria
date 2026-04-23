@@ -1,6 +1,7 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
 import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAO;
+import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAOImpl;
 import com.uff.gestaoclinicaveterinaria.dto.TutorRequestDTO;
 import com.uff.gestaoclinicaveterinaria.model.Consulta;
 import com.uff.gestaoclinicaveterinaria.model.Pet;
