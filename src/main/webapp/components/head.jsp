@@ -12,5 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css"/>
+    <script src="${pageContext.request.contextPath}/scripts/lightbox.js" defer></script>
+    <script src="${pageContext.request.contextPath}/scripts/consulta.js" defer></script>
 </head>
 <body>
