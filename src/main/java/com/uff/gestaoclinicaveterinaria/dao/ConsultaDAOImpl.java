@@ -154,4 +154,46 @@ public class ConsultaDAOImpl implements ConsultaDAO {
 
         return consulta;
     }
+
+    @Override
+    public List<Consulta> filtrar(String busca, LocalDate data) {
+
+        List<Consulta> lista = new ArrayList<>();
+
+        String sql = SQL_SELECT_JOIN + " WHERE 1=1";
+
+        if (busca != null && !busca.isEmpty()) {
+            sql += " AND (LOWER(p.nome) LIKE ? OR LOWER(v.nome) LIKE ?)";
+        }
+
+        if (data != null) {
+            sql += " AND DATE(c.data_consulta) = ?";
+        }
+
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int index = 1;
+
+            if (busca != null && !busca.isEmpty()) {
+                stmt.setString(index++, "%" + busca.toLowerCase() + "%");
+                stmt.setString(index++, "%" + busca.toLowerCase() + "%");
+            }
+
+            if (data != null) {
+                stmt.setDate(index++, Date.valueOf(data));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                lista.add(extrairConsultaComJoin(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
 }
