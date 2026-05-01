@@ -36,6 +36,23 @@ public class AuthFilter implements Filter {
             return;
         }
 
+        String role = (String) session.getAttribute("usuarioRole");
+        String uri = request.getRequestURI();
+
+        if (uri.endsWith("/consultas") || uri.endsWith("/veterinarios")) {
+            if (!"VETERINARIO".equals(role)) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+        }
+
+        if (uri.endsWith("/pets") || uri.endsWith("/tutores")) {
+            if (!"TUTOR".equals(role) && !"VETERINARIO".equals(role)) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+        }
+
         chain.doFilter(req, res);
     }
 }
