@@ -61,12 +61,12 @@ public class ConsultaServlet extends HttpServlet {
         String acao = request.getParameter("acao");
 
         if ("TUTOR".equals(role)
-            && ("novo".equals(acao)
-            || "editar".equals(acao)
-            || "deletar".equals(acao)
-            || "buscarPorPet".equals(acao)
-            || "buscarPorData".equals(acao)
-            || "filtrar".equals(acao))) {
+                && ("novo".equals(acao)
+                || "editar".equals(acao)
+                || "deletar".equals(acao)
+                || "buscarPorPet".equals(acao)
+                || "buscarPorData".equals(acao)
+                || "filtrar".equals(acao))) {
             response.sendRedirect(request.getContextPath() + "/consultas");
             return;
         }
@@ -101,6 +101,10 @@ public class ConsultaServlet extends HttpServlet {
 
             Long id = Long.parseLong(request.getParameter("id"));
             Consulta consulta = consultaDAO.buscarPorId(id);
+            if (consulta == null) {
+                response.sendRedirect(request.getContextPath() + "/consultas");
+                return;
+            }
 
             List<Pet> pets = petDAO.listarTodos();
             List<Veterinario> vets = vetDAO.listarTodos();
@@ -192,7 +196,6 @@ public class ConsultaServlet extends HttpServlet {
         if ("atualizar".equals(acao)) {
 
             Long id = Long.parseLong(request.getParameter("id"));
-
             Consulta consulta = new Consulta();
             consulta.setId(id);
             consulta.setDataConsulta(dataConsulta);
