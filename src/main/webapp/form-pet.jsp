@@ -26,7 +26,7 @@ Pet pet = (Pet) request.getAttribute("pet");
     <%= pet != null ? "Editar Pet" : "Novo Pet" %>
 </div>
 
-<form action="pets" method="post">
+<form action="pets" method="post" id="petForm" novalidate>
 <%@ include file="components/csrf_token.jsp" %>
 
 <% if (pet != null) { %>
@@ -93,5 +93,6 @@ Pet pet = (Pet) request.getAttribute("pet");
 </div>
 
 </main>
+<script src="${pageContext.request.contextPath}/scripts/form-pet.js" defer></script>
 </body>
 </html>
