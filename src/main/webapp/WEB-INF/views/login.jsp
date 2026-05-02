@@ -25,5 +25,11 @@
     <p style="color:red;">
         ${erro}
     </p>
+
+    <p>
+        Não tem conta?
+        <a href="${pageContext.request.contextPath}/registro">Cadastre-se</a>
+    </p>
+    
 </body>
 </html>
