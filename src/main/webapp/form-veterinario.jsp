@@ -3,11 +3,15 @@
 <%@ page import="com.uff.gestaoclinicaveterinaria.model.Veterinario" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<main class="main">
-
 <%
 Veterinario vet = (Veterinario) request.getAttribute("veterinario");
+if (vet == null) {
+    response.sendRedirect(request.getContextPath() + "/veterinarios");
+    return;
+}
 %>
+
+<main class="main">
 
 <div class="form-card">
 
@@ -20,10 +24,11 @@ Veterinario vet = (Veterinario) request.getAttribute("veterinario");
 <div class="form-body">
 
 <div class="form-title">
-    <%= vet != null ? "Editar Veterinário" : "Novo Veterinário" %>
+    Editar Veterinário
 </div>
 
 <form action="veterinarios" method="post" id="vetForm">
+<%@ include file="components/csrf_token.jsp" %>
 
 <% if (vet != null) { %>
 <input type="hidden" name="id" value="<%= vet.getId() %>"/>

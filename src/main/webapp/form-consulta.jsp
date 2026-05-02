@@ -29,6 +29,7 @@ List<Veterinario> vets = (List<Veterinario>) request.getAttribute("listaVets");
 </div>
 
 <form action="consultas" method="post">
+<%@ include file="components/csrf_token.jsp" %>
 
 <% if (consulta != null) { %>
 <input type="hidden" name="id" value="<%= consulta.getId() %>"/>
