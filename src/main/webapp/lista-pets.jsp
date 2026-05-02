@@ -3,6 +3,12 @@
 <%@ include file="components/sidebar.jsp" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.uff.gestaoclinicaveterinaria.model.Pet" %>
+<%
+boolean isVetFiltro = "VETERINARIO".equals(session.getAttribute("usuarioRole"));
+String buscaParam = request.getParameter("busca") != null ? request.getParameter("busca") : "";
+String buscaPet = buscaParam.trim().toLowerCase();
+boolean filtroPetAtivo = !buscaPet.isEmpty();
+%>
 
 <main class="main">
 
@@ -16,6 +22,17 @@
         + Novo Pet
     </a>
 </div>
+
+<% if (isVetFiltro) { %>
+<div class="filter-bar">
+    <form action="pets" method="get" class="filter-group">
+        <label>Busca</label>
+        <input type="text" name="busca" placeholder="Nome, raça, tutor ou ID" value="<%= buscaParam %>"/>
+        <button type="submit" class="btn btn-outline">Filtrar</button>
+        <a class="btn btn-primary" href="${pageContext.request.contextPath}/pets">Limpar filtros</a>
+    </form>
+</div>
+<% } %>
 
 <div class="card">
 <table>
@@ -39,6 +56,20 @@ String[] meses = {"jan", "fev", "mar", "abr", "mai", "jun",
 
 if (lista != null) {
     for (Pet p : lista) {
+
+        String tutorNome = p.getTutor() != null && p.getTutor().getNome() != null ? p.getTutor().getNome() : "";
+        String tutorId = p.getTutor() != null && p.getTutor().getId() != null ? String.valueOf(p.getTutor().getId()) : "";
+
+        boolean petPassaFiltroTexto = !filtroPetAtivo
+            || (p.getNome() != null && p.getNome().toLowerCase().contains(buscaPet))
+            || (p.getRaca() != null && p.getRaca().toLowerCase().contains(buscaPet))
+            || tutorNome.toLowerCase().contains(buscaPet)
+            || String.valueOf(p.getId()).contains(buscaPet)
+            || tutorId.contains(buscaPet);
+
+        if (!petPassaFiltroTexto) {
+            continue;
+        }
 
         String dataFormatada = "";
 
