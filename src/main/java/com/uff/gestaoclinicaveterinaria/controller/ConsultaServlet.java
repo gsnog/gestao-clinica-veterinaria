@@ -28,7 +28,20 @@ public class ConsultaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("usuarioRole") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        String role = (String) session.getAttribute("usuarioRole");
+        Long idLogado = (Long) session.getAttribute("usuarioId");
         String acao = request.getParameter("acao");
+
+        if ("TUTOR".equals(role) && ("novo".equals(acao) || "editar".equals(acao) || "deletar".equals(acao))) {
+            response.sendRedirect(request.getContextPath() + "/consultas");
+            return;
+        }
 
         if ("buscarPorPet".equals(acao)) {
 
@@ -67,8 +80,7 @@ public class ConsultaServlet extends HttpServlet {
             request.setAttribute("listaPets", pets);
             request.setAttribute("listaVets", vets);
 
-            request.getRequestDispatcher("/form-consulta.jsp")
-                    .forward(request, response);
+            request.getRequestDispatcher("/form-consulta.jsp").forward(request, response);
 
         } else if ("filtrar".equals(acao)) {
 
@@ -84,9 +96,8 @@ public class ConsultaServlet extends HttpServlet {
             List<Consulta> lista = consultaDAO.filtrar(busca, data);
 
             request.setAttribute("listaDeConsultas", lista);
+            request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
 
-            request.getRequestDispatcher("/lista-consultas.jsp")
-                    .forward(request, response);
         } else if ("novo".equals(acao)) {
 
             List<Pet> pets = petDAO.listarTodos();
@@ -95,16 +106,19 @@ public class ConsultaServlet extends HttpServlet {
             request.setAttribute("listaPets", pets);
             request.setAttribute("listaVets", vets);
 
-            request.getRequestDispatcher("/form-consulta.jsp")
-                    .forward(request, response);
+            request.getRequestDispatcher("/form-consulta.jsp").forward(request, response);
 
         } else {
 
-            List<Consulta> lista = consultaDAO.listarTodos();
-            request.setAttribute("listaDeConsultas", lista);
+            List<Consulta> lista;
+            if ("TUTOR".equals(role)) {
+                lista = consultaDAO.buscarPorTutor(idLogado);
+            } else {
+                lista = consultaDAO.listarTodos();
+            }
 
-            request.getRequestDispatcher("/lista-consultas.jsp")
-                    .forward(request, response);
+            request.setAttribute("listaDeConsultas", lista);
+            request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
         }
     }
 
@@ -112,8 +126,19 @@ public class ConsultaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // evita bug de acento
         request.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("usuarioRole") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        String role = (String) session.getAttribute("usuarioRole");
+        if ("TUTOR".equals(role)) {
+            response.sendRedirect(request.getContextPath() + "/consultas");
+            return;
+        }
 
         String acao = request.getParameter("acao");
 

@@ -12,13 +12,7 @@ import java.util.List;
 
 public class ConsultaDAOImpl implements ConsultaDAO {
 
-    private static final String SQL_SELECT_JOIN =
-            "SELECT c.id AS consulta_id, c.data_consulta, c.motivo, " +
-                    "p.id AS pet_id, p.nome AS pet_nome, p.raca AS pet_raca, " +
-                    "v.id AS vet_id, v.nome AS vet_nome, v.especialidade AS vet_especialidade " +
-                    "FROM consulta c " +
-                    "INNER JOIN pet p ON c.pet_id = p.id " +
-                    "INNER JOIN veterinario v ON c.veterinario_id = v.id ";
+    private static final String SQL_SELECT_JOIN = "SELECT * FROM v_detalhes_consulta ";
 
     @Override
     public void salvar(Consulta consulta) {
@@ -80,7 +74,7 @@ public class ConsultaDAOImpl implements ConsultaDAO {
 
     @Override
     public Consulta buscarPorId(Long id) {
-        String sql = SQL_SELECT_JOIN + "WHERE c.id = ?";
+        String sql = SQL_SELECT_JOIN + "WHERE consulta_id = ?";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
@@ -98,7 +92,7 @@ public class ConsultaDAOImpl implements ConsultaDAO {
     @Override
     public List<Consulta> buscarPorPet(Long petId) {
         List<Consulta> consultas = new ArrayList<>();
-        String sql = SQL_SELECT_JOIN + "WHERE c.pet_id = ?";
+        String sql = SQL_SELECT_JOIN + "WHERE pet_id = ?";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, petId);
@@ -116,7 +110,7 @@ public class ConsultaDAOImpl implements ConsultaDAO {
     @Override
     public List<Consulta> buscarPorData(Long veterinarioId, LocalDate data) {
         List<Consulta> consultas = new ArrayList<>();
-        String sql = SQL_SELECT_JOIN + "WHERE c.veterinario_id = ? AND DATE(c.data_consulta) = ?";
+        String sql = SQL_SELECT_JOIN + "WHERE vet_id = ? AND DATE(data_consulta) = ?";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, veterinarioId);
@@ -132,42 +126,34 @@ public class ConsultaDAOImpl implements ConsultaDAO {
         return consultas;
     }
 
-    private Consulta extrairConsultaComJoin(ResultSet rs) throws SQLException {
-        Consulta consulta = new Consulta();
-        consulta.setId(rs.getLong("consulta_id"));
-        if (rs.getTimestamp("data_consulta") != null) {
-            consulta.setDataConsulta(rs.getTimestamp("data_consulta").toLocalDateTime());
+    public List<Consulta> buscarPorTutor(Long tutorId) {
+        List<Consulta> consultas = new ArrayList<>();
+        String sql = SQL_SELECT_JOIN + "WHERE pet_id IN (SELECT id FROM pet WHERE tutor_id = ?)";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, tutorId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    consultas.add(extrairConsultaComJoin(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        consulta.setMotivo(rs.getString("motivo"));
-
-        Pet pet = new Pet();
-        pet.setId(rs.getLong("pet_id"));
-        pet.setNome(rs.getString("pet_nome"));
-        pet.setRaca(rs.getString("pet_raca"));
-        consulta.setPet(pet);
-
-        Veterinario vet = new Veterinario();
-        vet.setId(rs.getLong("vet_id"));
-        vet.setNome(rs.getString("vet_nome"));
-        vet.setEspecialidade(rs.getString("vet_especialidade"));
-        consulta.setVeterinario(vet);
-
-        return consulta;
+        return consultas;
     }
 
     @Override
     public List<Consulta> filtrar(String busca, LocalDate data) {
-
         List<Consulta> lista = new ArrayList<>();
-
-        String sql = SQL_SELECT_JOIN + " WHERE 1=1";
+        String sql = SQL_SELECT_JOIN + "WHERE 1=1";
 
         if (busca != null && !busca.isEmpty()) {
-            sql += " AND (LOWER(p.nome) LIKE ? OR LOWER(v.nome) LIKE ?)";
+            sql += " AND (LOWER(pet_nome) LIKE ? OR LOWER(vet_nome) LIKE ?)";
         }
 
         if (data != null) {
-            sql += " AND DATE(c.data_consulta) = ?";
+            sql += " AND DATE(data_consulta) = ?";
         }
 
         try (Connection conn = ConnectionFactory.getConexao();
@@ -195,5 +181,28 @@ public class ConsultaDAOImpl implements ConsultaDAO {
         }
 
         return lista;
+    }
+
+    private Consulta extrairConsultaComJoin(ResultSet rs) throws SQLException {
+        Consulta consulta = new Consulta();
+        consulta.setId(rs.getLong("consulta_id"));
+        if (rs.getTimestamp("data_consulta") != null) {
+            consulta.setDataConsulta(rs.getTimestamp("data_consulta").toLocalDateTime());
+        }
+        consulta.setMotivo(rs.getString("motivo"));
+
+        Pet pet = new Pet();
+        pet.setId(rs.getLong("pet_id"));
+        pet.setNome(rs.getString("pet_nome"));
+        pet.setRaca(rs.getString("pet_raca"));
+        consulta.setPet(pet);
+
+        Veterinario vet = new Veterinario();
+        vet.setId(rs.getLong("vet_id"));
+        vet.setNome(rs.getString("vet_nome"));
+        vet.setEspecialidade(rs.getString("vet_especialidade"));
+        consulta.setVeterinario(vet);
+
+        return consulta;
     }
 }
