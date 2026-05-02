@@ -77,8 +77,13 @@ if (lista != null) {
         <a class="btn btn-edit"
            href="pets?acao=editar&id=<%= p.getId() %>">Editar</a>
 
-        <a class="btn btn-danger"
-           href="pets?acao=deletar&id=<%= p.getId() %>">Excluir</a>
+        <form method="post" action="pets" style="display:inline"
+              onsubmit="return confirm('Tem certeza?')">
+            <%@ include file="components/csrf_token.jsp" %>
+            <input type="hidden" name="acao" value="deletar"/>
+            <input type="hidden" name="id" value="<%= p.getId() %>"/>
+            <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
     </td>
 </tr>
 <%

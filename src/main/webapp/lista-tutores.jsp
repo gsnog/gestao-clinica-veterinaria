@@ -11,10 +11,6 @@
         <div class="page-title">Tutores</div>
         <div class="page-subtitle">Gerencie os responsáveis pelos pets</div>
     </div>
-
-    <a class="btn btn-primary" href="${pageContext.request.contextPath}/form-tutor.jsp">
-        + Novo Tutor
-    </a>
 </div>
 
 <div class="card">
@@ -44,8 +40,13 @@ if (lista != null) {
         <a class="btn btn-edit"
            href="tutores?acao=editar&id=<%= t.getId() %>">Editar</a>
 
-        <a class="btn btn-danger"
-           href="tutores?acao=deletar&id=<%= t.getId() %>">Excluir</a>
+        <form method="post" action="tutores" style="display:inline"
+              onsubmit="return confirm('Tem certeza?')">
+            <%@ include file="components/csrf_token.jsp" %>
+            <input type="hidden" name="acao" value="deletar"/>
+            <input type="hidden" name="id" value="<%= t.getId() %>"/>
+            <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
     </td>
 </tr>
 <%
