@@ -11,10 +11,6 @@
         <div class="page-title">Veterinários</div>
         <div class="page-subtitle">Equipe médica da clínica</div>
     </div>
-
-    <a class="btn btn-primary" href="${pageContext.request.contextPath}/form-veterinario.jsp">
-        + Novo Veterinário
-    </a>
 </div>
 
 <div class="card">
@@ -46,8 +42,13 @@ if (lista != null) {
         <a class="btn btn-edit"
            href="veterinarios?acao=editar&id=<%= v.getId() %>">Editar</a>
 
-        <a class="btn btn-danger"
-           href="veterinarios?acao=deletar&id=<%= v.getId() %>">Excluir</a>
+        <form method="post" action="veterinarios" style="display:inline"
+              onsubmit="return confirm('Tem certeza?')">
+            <%@ include file="components/csrf_token.jsp" %>
+            <input type="hidden" name="acao" value="deletar"/>
+            <input type="hidden" name="id" value="<%= v.getId() %>"/>
+            <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
     </td>
 </tr>
 <%
