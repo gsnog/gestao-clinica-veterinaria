@@ -6,12 +6,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ConsultaDAO {
-    public void salvar(Consulta consulta);
-    public List<Consulta> listarTodos();
-    public Consulta buscarPorId(Long id);
-    public void atualizar(Consulta consulta);
-    public void deletar(Long id);
-
+    void salvar(Consulta consulta);
+    void atualizar(Consulta consulta);
+    void deletar(Long id);
+    List<Consulta> listarTodos();
+    Consulta buscarPorId(Long id);
     List<Consulta> buscarPorPet(Long petId);
     List<Consulta> buscarPorData(Long veterinarioId, LocalDate data);
+    List<Consulta> filtrar(String busca, LocalDate data);
+    List<Consulta> buscarPorTutor(Long tutorId);
 }

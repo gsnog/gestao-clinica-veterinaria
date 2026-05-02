@@ -99,21 +99,6 @@ List<Veterinario> vets = (List<Veterinario>) request.getAttribute("listaVets");
 </form>
 </div>
 </div>
-
 </main>
-
-<script>
-const input = document.getElementById("dataConsultaInput");
-const hidden = document.getElementById("dataConsultaHidden");
-
-function setData() {
-    if (input.value) hidden.value = input.value + ":00";
-}
-
-input.addEventListener("change", setData);
-document.querySelector("form").addEventListener("submit", setData);
-setData();
-</script>
-
 </body>
 </html>
