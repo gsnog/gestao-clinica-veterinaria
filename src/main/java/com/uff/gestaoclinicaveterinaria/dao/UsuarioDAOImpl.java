@@ -60,4 +60,30 @@ public class UsuarioDAOImpl implements UsuarioDAO {
             throw new RuntimeException("Erro ao salvar usuário.", e);
         }
     }
+
+    @Override
+    public Usuario buscarPorId(Long id) {
+        String sql = "SELECT * FROM usuario WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Usuario usuario = new Usuario();
+                    usuario.setId(rs.getLong("id"));
+                    usuario.setNome(rs.getString("nome"));
+                    usuario.setEmail(rs.getString("email"));
+                    usuario.setSenhaHash(rs.getString("senha_hash"));
+                    usuario.setSalt(rs.getString("salt"));
+                    usuario.setRole(rs.getString("role"));
+                    return usuario;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
 }

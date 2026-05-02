@@ -11,7 +11,7 @@
         <div class="page-subtitle">Gerencie atendimentos realizados</div>
     </div>
 
-    <a class="btn btn-primary" href="${pageContext.request.contextPath}/form-consulta.jsp">
+    <a class="btn btn-primary" href="${pageContext.request.contextPath}/consultas?acao=novo">
         + Nova Consulta
     </a>
 </div>

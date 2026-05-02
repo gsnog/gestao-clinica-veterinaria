@@ -12,13 +12,7 @@ import java.util.List;
 
 public class ConsultaDAOImpl implements ConsultaDAO {
 
-    private static final String SQL_SELECT_JOIN =
-            "SELECT c.id AS consulta_id, c.data_consulta, c.motivo, " +
-                    "p.id AS pet_id, p.nome AS pet_nome, p.raca AS pet_raca, " +
-                    "v.id AS vet_id, v.nome AS vet_nome, v.especialidade AS vet_especialidade " +
-                    "FROM consulta c " +
-                    "INNER JOIN pet p ON c.pet_id = p.id " +
-                    "INNER JOIN veterinario v ON c.veterinario_id = v.id ";
+    private static final String SQL_SELECT_JOIN = "SELECT * FROM v_detalhes_consulta ";
 
     @Override
     public void salvar(Consulta consulta) {
@@ -80,7 +74,7 @@ public class ConsultaDAOImpl implements ConsultaDAO {
 
     @Override
     public Consulta buscarPorId(Long id) {
-        String sql = SQL_SELECT_JOIN + "WHERE c.id = ?";
+        String sql = SQL_SELECT_JOIN + "WHERE consulta_id = ?";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
@@ -98,7 +92,7 @@ public class ConsultaDAOImpl implements ConsultaDAO {
     @Override
     public List<Consulta> buscarPorPet(Long petId) {
         List<Consulta> consultas = new ArrayList<>();
-        String sql = SQL_SELECT_JOIN + "WHERE c.pet_id = ?";
+        String sql = SQL_SELECT_JOIN + "WHERE pet_id = ?";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, petId);
@@ -116,7 +110,7 @@ public class ConsultaDAOImpl implements ConsultaDAO {
     @Override
     public List<Consulta> buscarPorData(Long veterinarioId, LocalDate data) {
         List<Consulta> consultas = new ArrayList<>();
-        String sql = SQL_SELECT_JOIN + "WHERE c.veterinario_id = ? AND DATE(c.data_consulta) = ?";
+        String sql = SQL_SELECT_JOIN + "WHERE vet_id = ? AND DATE(data_consulta) = ?";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, veterinarioId);
@@ -130,6 +124,63 @@ public class ConsultaDAOImpl implements ConsultaDAO {
             e.printStackTrace();
         }
         return consultas;
+    }
+
+    public List<Consulta> buscarPorTutor(Long tutorId) {
+        List<Consulta> consultas = new ArrayList<>();
+        String sql = SQL_SELECT_JOIN + "WHERE pet_id IN (SELECT id FROM pet WHERE tutor_id = ?)";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, tutorId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    consultas.add(extrairConsultaComJoin(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return consultas;
+    }
+
+    @Override
+    public List<Consulta> filtrar(String busca, LocalDate data) {
+        List<Consulta> lista = new ArrayList<>();
+        String sql = SQL_SELECT_JOIN + "WHERE 1=1";
+
+        if (busca != null && !busca.isEmpty()) {
+            sql += " AND (LOWER(pet_nome) LIKE ? OR LOWER(vet_nome) LIKE ?)";
+        }
+
+        if (data != null) {
+            sql += " AND DATE(data_consulta) = ?";
+        }
+
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int index = 1;
+
+            if (busca != null && !busca.isEmpty()) {
+                stmt.setString(index++, "%" + busca.toLowerCase() + "%");
+                stmt.setString(index++, "%" + busca.toLowerCase() + "%");
+            }
+
+            if (data != null) {
+                stmt.setDate(index++, Date.valueOf(data));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                lista.add(extrairConsultaComJoin(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
     }
 
     private Consulta extrairConsultaComJoin(ResultSet rs) throws SQLException {

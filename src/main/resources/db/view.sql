@@ -7,22 +7,24 @@ SELECT
     p.id AS pet_id, 
     p.nome AS pet_nome, 
     p.raca AS pet_raca,
-    v.id AS vet_id, 
-    v.nome AS vet_nome, 
+    v.usuario_id AS vet_id,     -- PK agora é usuario_id
+    u.nome AS vet_nome,          -- Nome vem da tabela usuario
     v.especialidade AS vet_especialidade
 FROM consulta c
 INNER JOIN pet p ON c.pet_id = p.id
-INNER JOIN veterinario v ON c.veterinario_id = v.id;
+INNER JOIN veterinario v ON c.veterinario_id = v.usuario_id
+INNER JOIN usuario u ON v.usuario_id = u.id;
 
 --View: Retorna a agenda de um veterinário específico em um dia
 CREATE OR REPLACE VIEW v_agenda_veterinario AS
 SELECT 
     v.crmv AS crmv_veterinario,
-    v.nome AS nome_veterinario,
+    u.nome AS nome_veterinario,  -- Nome vem da tabela usuario
     DATE(c.data_consulta) AS dia_consulta,
     c.data_consulta AS hora_consulta,
     p.nome AS nome_pet,
     c.motivo AS motivo_consulta
 FROM consulta c
-JOIN veterinario v ON c.veterinario_id = v.id
-JOIN pet p ON c.pet_id = p.id;
+INNER JOIN veterinario v ON c.veterinario_id = v.usuario_id
+INNER JOIN usuario u ON v.usuario_id = u.id
+INNER JOIN pet p ON c.pet_id = p.id;

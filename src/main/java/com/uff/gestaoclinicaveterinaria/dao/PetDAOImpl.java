@@ -17,8 +17,8 @@ public class PetDAOImpl implements PetDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pet.getNome());
             stmt.setString(2, pet.getRaca());
-            stmt.setDate(3, Date.valueOf(pet.getDataNascimento())); // LocalDate para SQL Date
-            stmt.setLong(4, pet.getTutor().getId()); // Extrai o ID do manequim
+            stmt.setDate(3, Date.valueOf(pet.getDataNascimento()));
+            stmt.setLong(4, pet.getTutor().getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -80,6 +80,35 @@ public class PetDAOImpl implements PetDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Pet> buscarPorTutor(Long tutorId) {
+        List<Pet> pets = new ArrayList<>();
+        String sql = "SELECT * FROM pet WHERE tutor_id = ?";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, tutorId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Pet pet = new Pet();
+                    pet.setId(rs.getLong("id"));
+                    pet.setNome(rs.getString("nome"));
+                    pet.setRaca(rs.getString("raca"));
+                    if (rs.getDate("data_nascimento") != null) {
+                        pet.setDataNascimento(rs.getDate("data_nascimento").toLocalDate());
+                    }
+
+                    Tutor tutor = new Tutor();
+                    tutor.setId(rs.getLong("tutor_id"));
+                    pet.setTutor(tutor);
+
+                    pets.add(pet);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return pets;
     }
 
     @Override
