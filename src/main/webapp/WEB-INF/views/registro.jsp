@@ -15,6 +15,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css"/>
+    <script src="${pageContext.request.contextPath}/scripts/validation.js" defer></script>
+    <script src="${pageContext.request.contextPath}/scripts/registro.js" defer></script>
 </head>
 <body class="auth-body">
     <main class="auth-shell">
@@ -98,62 +100,5 @@
             </div>
         </section>
     </main>
-
-    <script>
-    (function() {
-        const roleSelect = document.getElementById('role');
-        const tutorFields = document.getElementById('tutorFields');
-        const vetFields = document.getElementById('vetFields');
-        const telefoneInput = document.getElementById('telefone');
-        const crmvInput = document.getElementById('crmv');
-        const especialidadeInput = document.getElementById('especialidade');
-
-        function atualizarCamposPorRole() {
-            const role = roleSelect.value;
-            const isTutor = role === 'TUTOR';
-            const isVet = role === 'VETERINARIO';
-
-            tutorFields.style.display = isTutor ? 'block' : 'none';
-            vetFields.style.display = isVet ? 'block' : 'none';
-
-            telefoneInput.required = isTutor;
-            crmvInput.required = isVet;
-            especialidadeInput.required = isVet;
-        }
-
-        if (telefoneInput) {
-            telefoneInput.addEventListener('input', function(e) {
-                let v = e.target.value.replace(/\D/g, '');
-                if (v.length > 11) v = v.slice(0, 11);
-                if (v.length <= 10) {
-                    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
-                    v = v.replace(/(\d{4})(\d)/, '$1-$2');
-                } else {
-                    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
-                    v = v.replace(/(\d{5})(\d)/, '$1-$2');
-                }
-                e.target.value = v;
-            });
-        }
-
-        if (crmvInput) {
-            crmvInput.addEventListener('input', function(e) {
-                let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                v = v.replace(/^CRMV/, '');
-                let resultado = 'CRMV-';
-                const letras = v.replace(/[^A-Z]/g, '').substring(0, 2);
-                const numeros = v.replace(/[^0-9]/g, '').substring(0, 5);
-                resultado += letras;
-                if (letras.length === 2) {
-                    resultado += ' ' + numeros;
-                }
-                e.target.value = resultado;
-            });
-        }
-
-        roleSelect.addEventListener('change', atualizarCamposPorRole);
-        atualizarCamposPorRole();
-    })();
-    </script>
 </body>
 </html>
