@@ -5,9 +5,10 @@ import com.uff.gestaoclinicaveterinaria.model.Pet;
 import java.util.List;
 
 public interface PetDAO {
-    public void salvar(Pet pet);
-    public List<Pet> listarTodos();
-    public Pet buscarPorId(Long id);
-    public void atualizar(Pet pet);
-    public void deletar(Long id);
+    void salvar(Pet pet);
+    void atualizar(Pet pet);
+    void deletar(Long id);
+    List<Pet> listarTodos();
+    Pet buscarPorId(Long id);
+    List<Pet> buscarPorTutor(Long tutorId);
 }
