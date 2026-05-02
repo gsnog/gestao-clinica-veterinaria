@@ -8,6 +8,7 @@ import com.uff.gestaoclinicaveterinaria.model.Usuario;
 import com.uff.gestaoclinicaveterinaria.util.InputSanitizer;
 import com.uff.gestaoclinicaveterinaria.util.InputValidator;
 import com.uff.gestaoclinicaveterinaria.util.PasswordUtil;
+import com.uff.gestaoclinicaveterinaria.util.PreferenceUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,6 +28,10 @@ public class LoginServlet extends HttpServlet {
         if ("1".equals(request.getParameter("recuperada"))) {
             request.setAttribute("sucesso", "Senha redefinida com sucesso. Faça seu login.");
         }
+
+        String emailSalvo = PreferenceUtil.getPreference(request, "email", "");
+        request.setAttribute("emailSalvo", emailSalvo);
+
         request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
     }
 
@@ -39,12 +44,14 @@ public class LoginServlet extends HttpServlet {
 
         if (InputValidator.isNullOrBlank(email) || InputValidator.isNullOrBlank(senha)) {
             request.setAttribute("erro", "Preencha todos os campos.");
+            request.setAttribute("emailSalvo", InputSanitizer.sanitizarTexto(email));
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
             return;
         }
 
         if (!InputValidator.emailValido(email)) {
             request.setAttribute("erro", "Credenciais inválidas.");
+            request.setAttribute("emailSalvo", InputSanitizer.sanitizarTexto(email));
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
             return;
         }
@@ -55,8 +62,15 @@ public class LoginServlet extends HttpServlet {
 
         if (usuario == null || !PasswordUtil.verificarSenha(senha, usuario.getSalt(), usuario.getSenhaHash())) {
             request.setAttribute("erro", "Credenciais inválidas.");
+            request.setAttribute("emailSalvo", email);
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
             return;
+        }
+
+        if ("true".equals(request.getParameter("lembrar"))) {
+            PreferenceUtil.setPreference(response, "email", email);
+        } else {
+            PreferenceUtil.removePreference(response, "email");
         }
 
         HttpSession sessaoAntiga = request.getSession(false);
