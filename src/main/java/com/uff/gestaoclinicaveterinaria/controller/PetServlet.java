@@ -1,18 +1,23 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.uff.gestaoclinicaveterinaria.dao.PetDAO;
 import com.uff.gestaoclinicaveterinaria.dao.PetDAOImpl;
 import com.uff.gestaoclinicaveterinaria.dao.TutorDAO;
 import com.uff.gestaoclinicaveterinaria.dao.TutorDAOImpl;
 import com.uff.gestaoclinicaveterinaria.model.Pet;
 import com.uff.gestaoclinicaveterinaria.model.Tutor;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/pets")
 public class PetServlet extends HttpServlet {
@@ -34,14 +39,19 @@ public class PetServlet extends HttpServlet {
         Long idLogado = (Long) session.getAttribute("usuarioId");
         String acao = request.getParameter("acao");
 
-        if ("deletar".equals(acao)) {
-            Long id = Long.parseLong(request.getParameter("id"));
-            petDao.deletar(id);
-            response.sendRedirect(request.getContextPath() + "/pets");
-
-        } else if ("editar".equals(acao)) {
+        if ("editar".equals(acao)) {
             Long id = Long.parseLong(request.getParameter("id"));
             Pet pet = petDao.buscarPorId(id);
+
+            if (pet == null || pet.getTutor() == null) {
+                response.sendRedirect(request.getContextPath() + "/pets");
+                return;
+            }
+
+            if ("TUTOR".equals(role) && !idLogado.equals(pet.getTutor().getId())) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
 
             List<Tutor> tutores = new ArrayList<>();
             if ("TUTOR".equals(role)) {
@@ -93,6 +103,22 @@ public class PetServlet extends HttpServlet {
         Long idLogado = (Long) session.getAttribute("usuarioId");
         String acao = request.getParameter("acao");
 
+        if ("deletar".equals(acao)) {
+            Long id = Long.parseLong(request.getParameter("id"));
+            Pet petParaDeletar = petDao.buscarPorId(id);
+            if (petParaDeletar == null || petParaDeletar.getTutor() == null) {
+                response.sendRedirect(request.getContextPath() + "/pets");
+                return;
+            }
+            if ("TUTOR".equals(role) && !idLogado.equals(petParaDeletar.getTutor().getId())) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+            petDao.deletar(id);
+            response.sendRedirect(request.getContextPath() + "/pets");
+            return;
+        }
+
         String nome = request.getParameter("nomePet");
         String raca = request.getParameter("racaPet");
         LocalDate dataNascimento = LocalDate.parse(request.getParameter("dataNascimentoPet"));
@@ -109,6 +135,17 @@ public class PetServlet extends HttpServlet {
 
         if ("atualizar".equals(acao)) {
             Long id = Long.parseLong(request.getParameter("id"));
+            Pet petAtual = petDao.buscarPorId(id);
+
+            if (petAtual == null || petAtual.getTutor() == null) {
+                response.sendRedirect(request.getContextPath() + "/pets");
+                return;
+            }
+
+            if ("TUTOR".equals(role) && !idLogado.equals(petAtual.getTutor().getId())) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
 
             Pet pet = new Pet();
             pet.setId(id);

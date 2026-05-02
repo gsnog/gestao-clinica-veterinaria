@@ -6,9 +6,12 @@ import java.sql.SQLException;
 
 public class ConnectionFactory {
 
-    private static final String URL = "jdbc:postgresql://localhost:5433/clinica";
-    private static final String USUARIO = "postgres";
-    private static final String SENHA = "KigxgW044#A1";
+    private static final String URL =
+            System.getenv("DB_URL") != null ? System.getenv("DB_URL") : "jdbc:postgresql://localhost:5432/clinica";
+    private static final String USUARIO =
+            System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "postgres";
+    private static final String SENHA =
+            System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "ElixirSuperPoderosos987";
 
     static {
         try {

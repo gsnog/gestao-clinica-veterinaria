@@ -1,4 +1,4 @@
-package com.uff.gestaoclinicaveterinaria.model;
+package com.uff.gestaoclinicaveterinaria.dto;
 
 public class DashboardDTO {
 
