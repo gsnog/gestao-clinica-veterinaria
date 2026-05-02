@@ -39,6 +39,7 @@ body {
     color: var(--text);
     display: flex;
     min-height: 100vh;
+    min-width: 780px;
 }
 
 a {
@@ -618,6 +619,7 @@ tbody tr:hover td {
     border: 1.5px solid var(--lavender-light);
     border-radius: 50px;
     padding: 6px 16px;
+    width: min(100%, 680px);
 }
 
 .filter-group label {
@@ -634,6 +636,15 @@ tbody tr:hover td {
     color: var(--text);
     width: auto;
     background: transparent;
+}
+
+.filter-group input[type="text"] {
+    flex: 1 1 220px;
+    min-width: 180px;
+}
+
+.filter-group input[type="date"] {
+    min-width: 155px;
 }
 
 @keyframes fadeUp {
@@ -789,6 +800,17 @@ tbody tr:hover td {
     font-size: .95rem;
     color: var(--text);
     font-weight: 500;
+}
+
+.profile-row .badge {
+    justify-self: start;
+    width: fit-content;
+    white-space: nowrap;
+}
+
+.profile-role-badge {
+    display: inline-flex;
+    width: max-content;
 }
 
 .profile-form-wrap {
@@ -977,29 +999,44 @@ tbody tr:hover td {
 }
 
 @media (max-width: 940px) {
-    body {
-        display: block;
-    }
-
     .sidebar {
-        position: relative;
-        width: 100%;
-        min-height: auto;
-        padding: 18px 14px;
+        width: 92px;
+        min-height: 100vh;
+        padding: 18px 10px;
     }
 
     .brand {
-        margin-bottom: 20px;
+        margin-bottom: 18px;
+        justify-content: center;
+    }
+
+    .brand-name,
+    .nav-section,
+    .sidebar-footer-text {
+        display: none;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 12px 10px;
+        font-size: 0;
+    }
+
+    .nav-icon {
+        width: auto;
+        font-size: 1.15rem;
+        margin: 0;
     }
 
     .sidebar-footer {
-        margin-top: 16px;
+        margin-top: 12px;
+        padding: 10px;
     }
 
     .main {
-        margin-left: 0;
-        padding: 22px 16px;
-        min-height: auto;
+        margin-left: 92px;
+        padding: 22px 18px;
+        min-height: 100vh;
     }
 
     .topbar {
@@ -1102,4 +1139,17 @@ tbody tr:hover td {
     .auth-shell {
         padding: 14px;
     }
+}
+
+.field-error {
+    display: block;
+    color: #c0392b;
+    font-size: 0.78rem;
+    margin-top: 4px;
+    min-height: 1em;
+}
+
+.field-invalid {
+    border-color: #c0392b !important;
+    outline-color: #c0392b;
 }
