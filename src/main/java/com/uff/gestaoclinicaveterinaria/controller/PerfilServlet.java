@@ -1,36 +1,111 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
+import java.io.IOException;
+
+import com.uff.gestaoclinicaveterinaria.dao.TutorDAO;
+import com.uff.gestaoclinicaveterinaria.dao.TutorDAOImpl;
 import com.uff.gestaoclinicaveterinaria.dao.UsuarioDAO;
 import com.uff.gestaoclinicaveterinaria.dao.UsuarioDAOImpl;
+import com.uff.gestaoclinicaveterinaria.model.Tutor;
 import com.uff.gestaoclinicaveterinaria.model.Usuario;
+import com.uff.gestaoclinicaveterinaria.util.InputSanitizer;
+import com.uff.gestaoclinicaveterinaria.util.InputValidator;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
 
 @WebServlet("/perfil")
 public class PerfilServlet extends HttpServlet {
 
-    private UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
+    private final TutorDAO tutorDAO = new TutorDAOImpl();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Usuario usuario = obterUsuarioLogado(request, response);
+        if (usuario == null) {
+            return;
+        }
+
+        if ("1".equals(request.getParameter("telefoneAtualizado"))) {
+            request.setAttribute("sucesso", "Telefone atualizado com sucesso.");
+        }
+
+        carregarPerfil(request, response, usuario, null);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        Usuario usuario = obterUsuarioLogado(request, response);
+        if (usuario == null) {
+            return;
+        }
+
+        String telefone = InputSanitizer.sanitizarTexto(request.getParameter("telefone"));
+
+        if (InputValidator.isNullOrBlank(telefone)) {
+            request.setAttribute("erro", "Informe o telefone.");
+            carregarPerfil(request, response, usuario, telefone);
+            return;
+        }
+
+        if (!InputValidator.telefoneValido(telefone)) {
+            request.setAttribute("erro", "Telefone inválido. Use o formato (DDD) 99999-9999.");
+            carregarPerfil(request, response, usuario, telefone);
+            return;
+        }
+
+        if (!"TUTOR".equals(usuario.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/perfil");
+            return;
+        }
+
+        Tutor tutor = tutorDAO.buscarPorId(usuario.getId());
+        if (tutor == null) {
+            tutor = new Tutor();
+            tutor.setId(usuario.getId());
+            tutor.setNome(usuario.getNome());
+        }
+        tutor.setTelefone(telefone);
+        tutorDAO.atualizar(tutor);
+
+        response.sendRedirect(request.getContextPath() + "/perfil?telefoneAtualizado=1");
+    }
+
+    private Usuario obterUsuarioLogado(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("usuarioId") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
-            return;
+            return null;
         }
 
         Long idLogado = (Long) session.getAttribute("usuarioId");
-        Usuario usuario = usuarioDAO.buscarPorId(idLogado);
+        return usuarioDAO.buscarPorId(idLogado);
+    }
 
+    private void carregarPerfil(HttpServletRequest request, HttpServletResponse response, Usuario usuario, String telefonePreenchido)
+            throws ServletException, IOException {
         request.setAttribute("usuario", usuario);
+        request.setAttribute("telefoneValue", telefonePreenchido != null ? telefonePreenchido : buscarTelefone(usuario));
         request.getRequestDispatcher("/perfil.jsp").forward(request, response);
+    }
+
+    private String buscarTelefone(Usuario usuario) {
+        if (usuario == null || !"TUTOR".equals(usuario.getRole())) {
+            return null;
+        }
+
+        Tutor tutor = tutorDAO.buscarPorId(usuario.getId());
+        return tutor != null ? tutor.getTelefone() : null;
     }
 }
