@@ -43,12 +43,3 @@ CREATE TABLE consulta (
     FOREIGN KEY (veterinario_id) REFERENCES veterinario(usuario_id) 
         ON DELETE CASCADE
 );
-
-CREATE TABLE usuario (
-    id BIGSERIAL PRIMARY KEY,
-    nome VARCHAR(120) NOT NULL,
-    email VARCHAR(120) NOT NULL UNIQUE,
-    senha_hash VARCHAR(255) NOT NULL,
-    salt VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('TUTOR', 'VETERINARIO'))
-);
