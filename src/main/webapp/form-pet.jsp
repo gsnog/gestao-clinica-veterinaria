@@ -26,7 +26,8 @@ Pet pet = (Pet) request.getAttribute("pet");
     <%= pet != null ? "Editar Pet" : "Novo Pet" %>
 </div>
 
-<form action="pets" method="post">
+<form action="pets" method="post" id="petForm" novalidate>
+<%@ include file="components/csrf_token.jsp" %>
 
 <% if (pet != null) { %>
 <input type="hidden" name="id" value="<%= pet.getId() %>"/>
@@ -48,17 +49,24 @@ Pet pet = (Pet) request.getAttribute("pet");
 <div class="form-row">
     <div class="form-group">
         <label>Nascimento</label>
-        <input type="date" name="dataNascimentoPet" value="<%= pet != null ? pet.getDataNascimento().toString() : "" %>" required/>
+        <input type="date" name="dataNascimentoPet" value="<%= pet != null ? pet.getDataNascimento().toString() : "" %>" max="<%= java.time.LocalDate.now().toString() %>" required/>
     </div>
 
     <div class="form-group">
         <label>Tutor</label>
+        <%
+        List<Tutor> tutores = (List<Tutor>) request.getAttribute("listaTutores");
+        boolean isTutorRole = "TUTOR".equals(session.getAttribute("usuarioRole"));
+        Tutor tutorUnico = (tutores != null && !tutores.isEmpty()) ? tutores.get(0) : null;
+        %>
+        <% if (isTutorRole && tutorUnico != null) { %>
+            <input type="hidden" name="tutorId" value="<%= tutorUnico.getId() %>"/>
+            <input type="text" value="#<%= tutorUnico.getId() %> - <%= tutorUnico.getNome() %>"
+                   disabled style="background:var(--cream);cursor:not-allowed;"/>
+        <% } else { %>
         <select name="tutorId" required>
             <option value="">Selecione um tutor</option>
-
             <%
-            List<Tutor> tutores = (List<Tutor>) request.getAttribute("listaTutores");
-
             if (tutores != null) {
                 for (Tutor t : tutores) {
             %>
@@ -71,6 +79,7 @@ Pet pet = (Pet) request.getAttribute("pet");
             }
             %>
         </select>
+        <% } %>
     </div>
 </div>
 
@@ -84,5 +93,6 @@ Pet pet = (Pet) request.getAttribute("pet");
 </div>
 
 </main>
+<script src="${pageContext.request.contextPath}/scripts/form-pet.js" defer></script>
 </body>
 </html>

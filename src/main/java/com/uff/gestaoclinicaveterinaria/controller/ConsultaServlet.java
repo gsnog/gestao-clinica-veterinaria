@@ -1,5 +1,10 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAO;
 import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAOImpl;
 import com.uff.gestaoclinicaveterinaria.dao.PetDAO;
@@ -9,13 +14,13 @@ import com.uff.gestaoclinicaveterinaria.dao.VeterinarioDAOImpl;
 import com.uff.gestaoclinicaveterinaria.model.Consulta;
 import com.uff.gestaoclinicaveterinaria.model.Pet;
 import com.uff.gestaoclinicaveterinaria.model.Veterinario;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/consultas")
 public class ConsultaServlet extends HttpServlet {
@@ -23,6 +28,23 @@ public class ConsultaServlet extends HttpServlet {
     private ConsultaDAO consultaDAO = new ConsultaDAOImpl();
     private PetDAO petDAO = new PetDAOImpl();
     private VeterinarioDAO vetDAO = new VeterinarioDAOImpl();
+
+    private Long parseLongPositivo(String valor) {
+        try {
+            long numero = Long.parseLong(valor);
+            return numero > 0 ? numero : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private LocalDate parseData(String valor) {
+        try {
+            return LocalDate.parse(valor);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -38,14 +60,24 @@ public class ConsultaServlet extends HttpServlet {
         Long idLogado = (Long) session.getAttribute("usuarioId");
         String acao = request.getParameter("acao");
 
-        if ("TUTOR".equals(role) && ("novo".equals(acao) || "editar".equals(acao) || "deletar".equals(acao))) {
+        if ("TUTOR".equals(role)
+                && ("novo".equals(acao)
+                || "editar".equals(acao)
+                || "deletar".equals(acao)
+                || "buscarPorPet".equals(acao)
+                || "buscarPorData".equals(acao)
+                || "filtrar".equals(acao))) {
             response.sendRedirect(request.getContextPath() + "/consultas");
             return;
         }
 
         if ("buscarPorPet".equals(acao)) {
 
-            Long petId = Long.parseLong(request.getParameter("petId"));
+            Long petId = parseLongPositivo(request.getParameter("petId"));
+            if (petId == null) {
+                response.sendRedirect(request.getContextPath() + "/consultas");
+                return;
+            }
             List<Consulta> lista = consultaDAO.buscarPorPet(petId);
 
             request.setAttribute("listaDeConsultas", lista);
@@ -53,25 +85,26 @@ public class ConsultaServlet extends HttpServlet {
 
         } else if ("buscarPorData".equals(acao)) {
 
-            Long vetId = Long.parseLong(request.getParameter("veterinarioId"));
-            LocalDate dataConsulta = LocalDate.parse(request.getParameter("dataConsulta"));
+            Long vetId = parseLongPositivo(request.getParameter("veterinarioId"));
+            LocalDate dataConsulta = parseData(request.getParameter("dataConsulta"));
+            if (vetId == null || dataConsulta == null) {
+                response.sendRedirect(request.getContextPath() + "/consultas");
+                return;
+            }
 
             List<Consulta> lista = consultaDAO.buscarPorData(vetId, dataConsulta);
 
             request.setAttribute("listaDeConsultas", lista);
             request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
 
-        } else if ("deletar".equals(acao)) {
-
-            Long id = Long.parseLong(request.getParameter("id"));
-            consultaDAO.deletar(id);
-
-            response.sendRedirect(request.getContextPath() + "/consultas");
-
         } else if ("editar".equals(acao)) {
 
             Long id = Long.parseLong(request.getParameter("id"));
             Consulta consulta = consultaDAO.buscarPorId(id);
+            if (consulta == null) {
+                response.sendRedirect(request.getContextPath() + "/consultas");
+                return;
+            }
 
             List<Pet> pets = petDAO.listarTodos();
             List<Veterinario> vets = vetDAO.listarTodos();
@@ -142,6 +175,13 @@ public class ConsultaServlet extends HttpServlet {
 
         String acao = request.getParameter("acao");
 
+        if ("deletar".equals(acao)) {
+            Long id = Long.parseLong(request.getParameter("id"));
+            consultaDAO.deletar(id);
+            response.sendRedirect(request.getContextPath() + "/consultas");
+            return;
+        }
+
         LocalDateTime dataConsulta = LocalDateTime.parse(request.getParameter("dataConsulta"));
         String motivo = request.getParameter("motivo");
 
@@ -156,7 +196,6 @@ public class ConsultaServlet extends HttpServlet {
         if ("atualizar".equals(acao)) {
 
             Long id = Long.parseLong(request.getParameter("id"));
-
             Consulta consulta = new Consulta();
             consulta.setId(id);
             consulta.setDataConsulta(dataConsulta);

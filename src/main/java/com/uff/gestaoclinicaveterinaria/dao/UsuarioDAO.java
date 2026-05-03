@@ -6,4 +6,7 @@ public interface UsuarioDAO {
     Usuario buscarPorEmail(String email);
     void salvar(Usuario usuario);
     Usuario buscarPorId(Long id);
+    void deletar(Long id);
+    void atualizarEmail(Long id, String email);
+    void atualizarSenha(Long id, String senhaHash, String salt);
 }

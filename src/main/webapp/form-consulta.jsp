@@ -28,7 +28,8 @@ List<Veterinario> vets = (List<Veterinario>) request.getAttribute("listaVets");
     <%= consulta != null ? "Editar Consulta" : "Nova Consulta" %>
 </div>
 
-<form action="consultas" method="post">
+<form action="consultas" method="post" id="consultaForm" novalidate>
+<%@ include file="components/csrf_token.jsp" %>
 
 <% if (consulta != null) { %>
 <input type="hidden" name="id" value="<%= consulta.getId() %>"/>
@@ -100,5 +101,6 @@ List<Veterinario> vets = (List<Veterinario>) request.getAttribute("listaVets");
 </div>
 </div>
 </main>
+<script src="${pageContext.request.contextPath}/scripts/form-consulta.js" defer></script>
 </body>
 </html>
