@@ -44,11 +44,13 @@ CREATE TABLE consulta (
         ON DELETE CASCADE
 );
 
-CREATE TABLE usuario (
-    id BIGSERIAL PRIMARY KEY,
-    nome VARCHAR(120) NOT NULL,
-    email VARCHAR(120) NOT NULL UNIQUE,
-    senha_hash VARCHAR(255) NOT NULL,
-    salt VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('TUTOR', 'VETERINARIO'))
+CREATE TABLE codigo_recuperacao_senha (
+    usuario_id BIGINT PRIMARY KEY,
+    codigo_hash VARCHAR(255) NOT NULL,
+    expira_em TIMESTAMP NOT NULL,
+    tentativas_restantes INT NOT NULL DEFAULT 5,
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
+

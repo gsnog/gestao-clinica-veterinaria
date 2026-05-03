@@ -3,11 +3,15 @@
 <%@ include file="components/sidebar.jsp" %>
 <%@ page import="com.uff.gestaoclinicaveterinaria.model.Tutor" %>
 
-<main class="main">
-
 <%
 Tutor tutor = (Tutor) request.getAttribute("tutor");
+if (tutor == null) {
+    response.sendRedirect(request.getContextPath() + "/tutores");
+    return;
+}
 %>
+
+<main class="main">
 
 <div class="form-card">
 
@@ -20,10 +24,14 @@ Tutor tutor = (Tutor) request.getAttribute("tutor");
     <div class="form-body">
 
         <div class="form-title">
-            <%= tutor != null ? "Editar Tutor" : "Novo Tutor" %>
+            Editar Tutor
         </div>
 
-        <form action="tutores" method="post">
+        <form action="tutores" method="post" id="tutorForm" novalidate>
+
+        <%@ include file="components/csrf_token.jsp" %>
+
+        <%@ include file="components/csrf_token.jsp" %>
 
         <% if (tutor != null) { %>
             <input type="hidden" name="id" value="<%= tutor.getId() %>"/>
@@ -71,28 +79,7 @@ Tutor tutor = (Tutor) request.getAttribute("tutor");
 </div>
 
 </main>
-
-<script>
-const telefoneInput = document.getElementById("telefoneTutor");
-
-if (telefoneInput) {
-    telefoneInput.addEventListener("input", function(e) {
-        let v = e.target.value.replace(/\D/g, "");
-
-        if (v.length > 11) v = v.slice(0, 11);
-
-        if (v.length <= 10) {
-            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-            v = v.replace(/(\d{4})(\d)/, "$1-$2");
-        } else {
-            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-            v = v.replace(/(\d{5})(\d)/, "$1-$2");
-        }
-
-        e.target.value = v;
-    });
-}
-</script>
+<script src="${pageContext.request.contextPath}/scripts/form-tutor.js" defer></script>
 
 </body>
 </html>

@@ -28,3 +28,11 @@ FROM consulta c
 INNER JOIN veterinario v ON c.veterinario_id = v.usuario_id
 INNER JOIN usuario u ON v.usuario_id = u.id
 INNER JOIN pet p ON c.pet_id = p.id;
+
+-- View: Estatísticas do dashboard
+CREATE OR REPLACE VIEW v_estatisticas_dashboard AS
+SELECT
+    (SELECT COUNT(*) FROM pet) AS total_pets,
+    (SELECT COUNT(*) FROM tutor) AS total_tutores,
+    (SELECT COUNT(*) FROM veterinario) AS total_veterinarios,
+    (SELECT COUNT(*) FROM consulta) AS total_consultas;

@@ -3,11 +3,15 @@
 <%@ page import="com.uff.gestaoclinicaveterinaria.model.Veterinario" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<main class="main">
-
 <%
 Veterinario vet = (Veterinario) request.getAttribute("veterinario");
+if (vet == null) {
+    response.sendRedirect(request.getContextPath() + "/veterinarios");
+    return;
+}
 %>
+
+<main class="main">
 
 <div class="form-card">
 
@@ -20,10 +24,11 @@ Veterinario vet = (Veterinario) request.getAttribute("veterinario");
 <div class="form-body">
 
 <div class="form-title">
-    <%= vet != null ? "Editar Veterinário" : "Novo Veterinário" %>
+    Editar Veterinário
 </div>
 
-<form action="veterinarios" method="post" id="vetForm">
+<form action="veterinarios" method="post" id="vetForm" novalidate>
+<%@ include file="components/csrf_token.jsp" %>
 
 <% if (vet != null) { %>
 <input type="hidden" name="id" value="<%= vet.getId() %>"/>
@@ -90,51 +95,7 @@ Veterinario vet = (Veterinario) request.getAttribute("veterinario");
 </div>
 
 </main>
-
-<script>
-const crmvInput = document.getElementById("crmv");
-
-crmvInput.addEventListener("input", function(e) {
-    let v = e.target.value.toUpperCase();
-
-    // remove tudo que não for letra ou número
-    v = v.replace(/[^A-Z0-9]/g, "");
-
-    // remove "CRMV" se digitarem
-    v = v.replace(/^CRMV/, "");
-
-    let resultado = "CRMV-";
-
-    let letras = v.replace(/[^A-Z]/g, "").substring(0, 2);
-    resultado += letras;
-
-    let numeros = v.replace(/[^0-9]/g, "").substring(0, 5);
-
-    if (letras.length === 2) {
-        resultado += " " + numeros;
-    }
-
-    e.target.value = resultado;
-});
-const select = document.getElementById("especialidadeSelect");
-const custom = document.getElementById("especialidadeCustom");
-
-select.addEventListener("change", () => {
-    if (select.value === "outro") {
-        custom.style.display = "block";
-        custom.required = true;
-    } else {
-        custom.style.display = "none";
-        custom.required = false;
-    }
-});
-
-document.getElementById("vetForm").addEventListener("submit", function() {
-    if (select.value === "outro") {
-        select.value = custom.value;
-    }
-});
-</script>
+<script src="${pageContext.request.contextPath}/scripts/form-veterinario.js" defer></script>
 
 </body>
 </html>
