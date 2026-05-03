@@ -12,8 +12,11 @@
 
             const dataInput = document.getElementById('dataConsultaInput');
             const motivo = this.querySelector('[name="motivo"]');
-            const pet = this.querySelector('[name="petId"]');
-            const vet = this.querySelector('[name="vetId"]');
+            const diagnostico = this.querySelector('[name="diagnostico"]');
+            const petInput = document.getElementById('petIdInput');
+            const petHidden = document.getElementById('petIdHidden');
+            const vetInput = document.getElementById('vetIdInput');
+            const vetHidden = document.getElementById('vetIdHidden');
 
             if (!dataInput.value) {
                 v.showError(dataInput, 'Informe a data e hora da consulta.');
@@ -31,13 +34,18 @@
                 ok = false;
             }
 
-            if (pet && !pet.value) {
-                v.showError(pet, 'Selecione um pet.');
+            if (diagnostico && diagnostico.value.trim().length > 0 && diagnostico.value.trim().length < 5) {
+                v.showError(diagnostico, 'O diagnostico deve ter pelo menos 5 caracteres.');
                 ok = false;
             }
 
-            if (vet && !vet.value) {
-                v.showError(vet, 'Selecione um veterinario.');
+            if (petHidden && !petHidden.value) {
+                v.showError(petInput, 'Selecione um pet valido na lista.');
+                ok = false;
+            }
+
+            if (vetHidden && !vetHidden.value) {
+                v.showError(vetInput, 'Selecione um veterinario valido na lista.');
                 ok = false;
             }
 

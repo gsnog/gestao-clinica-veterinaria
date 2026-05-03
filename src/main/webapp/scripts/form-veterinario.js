@@ -9,30 +9,15 @@
         const select = document.getElementById('especialidadeSelect');
         const custom = document.getElementById('especialidadeCustom');
 
-        if (crmvInput) {
-            crmvInput.addEventListener('input', function (e) {
-                let value = e.target.value.toUpperCase();
-                value = value.replace(/[^A-Z0-9]/g, '');
-                value = value.replace(/^CRMV/, '');
-
-                let result = 'CRMV-';
-                const letras = value.replace(/[^A-Z]/g, '').substring(0, 2);
-                const numeros = value.replace(/[^0-9]/g, '').substring(0, 5);
-
-                result += letras;
-                if (letras.length === 2) result += ' ' + numeros;
-
-                e.target.value = result;
-            });
-        }
+        VetValidation.bindCrmvFormatter(crmvInput);
 
         if (select && custom) {
             select.addEventListener('change', function () {
                 if (select.value === 'outro') {
-                    custom.style.display = 'block';
+                    custom.classList.remove('is-hidden');
                     custom.required = true;
                 } else {
-                    custom.style.display = 'none';
+                    custom.classList.add('is-hidden');
                     custom.required = false;
                 }
             });
