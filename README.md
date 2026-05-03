@@ -48,22 +48,33 @@ src/main/
 
 ```bash
 # Criar banco e usuário
-psql -U postgres -c "CREATE DATABASE clinica_vet;"
+psql -U postgres -c "CREATE DATABASE clinica;"
 psql -U postgres -c "CREATE USER vet_admin WITH PASSWORD 'sua_senha';"
-psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE clinica_vet TO vet_admin;"
+psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE clinica TO vet_admin;"
 
 # Executar scripts SQL
-psql -U vet_admin -d clinica_vet -f src/main/resources/db/tables.sql
-psql -U vet_admin -d clinica_vet -f src/main/resources/db/view.sql
-psql -U vet_admin -d clinica_vet -f src/main/resources/db/index.sql
+psql -U vet_admin -d clinica -f src/main/resources/db/tables.sql
+psql -U vet_admin -d clinica -f src/main/resources/db/view.sql
+psql -U vet_admin -d clinica -f src/main/resources/db/index.sql
 ```
 
 ### 2. Configurar Variáveis de Ambiente
 
 ```bash
-export DB_URL="jdbc:postgresql://localhost:5432/clinica_vet"
+export DB_URL="jdbc:postgresql://localhost:5432/clinica"
 export DB_USER="vet_admin"
 export DB_PASSWORD="sua_senha"
+```
+
+Importante: as variáveis devem estar no mesmo terminal que inicia o servidor (Tomcat/Jetty).
+
+Exemplo (macOS/Linux, Tomcat):
+
+```bash
+export DB_URL="jdbc:postgresql://localhost:5432/clinica"
+export DB_USER="vet_admin"
+export DB_PASSWORD="sua_senha"
+$CATALINA_HOME/bin/catalina.sh run
 ```
 
 ### 3. Build e Deploy
@@ -246,7 +257,7 @@ veterinario_id (FK → usuario.id onde role=VETERINARIO)
 
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
-| `DB_URL` | URL de conexão PostgreSQL | `jdbc:postgresql://localhost:5432/clinica_vet` |
+| `DB_URL` | URL de conexão PostgreSQL | `jdbc:postgresql://localhost:5432/clinica` |
 | `DB_USER` | Usuário BD | `postgres` |
 | `DB_PASSWORD` | Senha BD | `postgres` |
 
@@ -283,7 +294,7 @@ Senha: senha123
 ### "Conexão recusada ao BD"
 - Verificar se PostgreSQL está rodando: `psql -l`
 - Revisar variáveis de ambiente: `echo $DB_URL`
-- Testar credenciais: `psql -h localhost -U vet_admin -d clinica_vet`
+- Testar credenciais: `psql -h localhost -U vet_admin -d clinica`
 
 ### "Encoding error (VeterinÃ¡rio)"
 - Garantir charset UTF-8 na JVM: `-Dfile.encoding=UTF-8`
@@ -302,8 +313,8 @@ Projeto educacional - UFF 2026
 ## 👥 Contribuidores
 
 - **Vítoria** (Frontend, UX)
-- **Arben** (Backend, Banco de Dados)
+- **Arben** (Banco de Dados)
+- **Giovana** (Backend)
+- **Sara** (Backend, Segurança)
 
 ---
-
-**Última atualização**: 02/05/2026
