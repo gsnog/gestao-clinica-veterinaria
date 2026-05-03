@@ -6,14 +6,29 @@
 
 <main class="main">
 
-<c:set var="dataConsultaInputValue" value="${not empty consulta and not empty consulta.dataConsulta ? fn:substring(consulta.dataConsulta, 0, 16) : ''}" />
+<c:set var="dataConsultaInputValue"
+       value="${not empty consulta and not empty consulta.dataConsulta 
+       ? fn:substring(consulta.dataConsulta, 0, 16) 
+       : ''}" />
+
+<c:set var="petLabel"
+       value="${not empty consulta and not empty consulta.pet 
+       ? '#' + consulta.pet.id + ' - ' + consulta.pet.nome + 
+         (not empty consulta.pet.tutor ? ' | Tutor: ' + consulta.pet.tutor.nome : '') 
+       : ''}" />
+
+<c:set var="vetLabel"
+       value="${not empty consulta and not empty consulta.veterinario 
+       ? '#' + consulta.veterinario.id + ' - ' + consulta.veterinario.nome + 
+         (not empty consulta.veterinario.crmv ? ' | ' + consulta.veterinario.crmv : '') 
+       : ''}" />
 
 <div class="form-card">
 
 <div class="form-sidebar">
-        <div class="form-sidebar-icon-form">
-            <img src="${pageContext.request.contextPath}/images/consulta.webp" alt="Pet"/>
-        </div>
+    <div class="form-sidebar-icon-form">
+        <img src="${pageContext.request.contextPath}/images/consulta.webp" alt="Consulta"/>
+    </div>
 </div>
 
 <div class="form-body">
@@ -29,15 +44,15 @@
 <%@ include file="components/csrf_token.jsp" %>
 
 <c:if test="${not empty consulta}">
-<input type="hidden" name="id" value="${consulta.id}"/>
-<input type="hidden" name="acao" value="atualizar"/>
+    <input type="hidden" name="id" value="${consulta.id}"/>
+    <input type="hidden" name="acao" value="atualizar"/>
 </c:if>
 
 <div class="form-row">
     <div class="form-group">
         <label>Data e Hora</label>
         <input type="datetime-local" id="dataConsultaInput"
-        value="${dataConsultaInputValue}" required/>
+               value="${dataConsultaInputValue}" required/>
         <input type="hidden" name="dataConsulta" id="dataConsultaHidden"/>
     </div>
 
@@ -49,38 +64,51 @@
 </div>
 
 <div class="form-row">
-    <!-- PET -->
+
     <div class="form-group">
         <label>Pet</label>
-        <input type="text" id="petIdInput"
+        <input type="text"
+               id="petIdInput"
                class="js-combobox-input"
                data-list-id="petOptions"
                data-hidden-target="petIdHidden"
-               placeholder="Buscar e selecionar um pet"
-             value="${not empty consulta and not empty consulta.pet ? '#' : ''}${not empty consulta and not empty consulta.pet ? consulta.pet.id : ''}${not empty consulta and not empty consulta.pet ? ' - ' : ''}${not empty consulta and not empty consulta.pet ? consulta.pet.nome : ''}"
+               placeholder="Buscar pet por nome, ID ou tutor"
+               value="${petLabel}"
                autocomplete="off"/>
-        <input type="hidden" name="petId" id="petIdHidden" value="${not empty consulta and not empty consulta.pet ? consulta.pet.id : ''}"/>
+
+        <input type="hidden" name="petId" id="petIdHidden"
+               value="${not empty consulta and not empty consulta.pet ? consulta.pet.id : ''}"/>
+
         <datalist id="petOptions">
             <c:forEach var="pet" items="${listaPets}">
-            <option value="#${pet.id} - ${pet.nome}" data-id="${pet.id}"></option>
+                <option
+                    value="#${pet.id} - ${pet.nome}${not empty pet.tutor ? ' | Tutor: ' : ''}${not empty pet.tutor ? pet.tutor.nome : ''}"
+                    data-id="${pet.id}">
+                </option>
             </c:forEach>
         </datalist>
     </div>
 
-    <!-- VETERINÁRIO -->
     <div class="form-group">
         <label>Veterinário</label>
-        <input type="text" id="vetIdInput"
+        <input type="text"
+               id="vetIdInput"
                class="js-combobox-input"
                data-list-id="vetOptions"
                data-hidden-target="vetIdHidden"
-               placeholder="Buscar e selecionar um veterinário"
-             value="${not empty consulta and not empty consulta.veterinario ? '#' : ''}${not empty consulta and not empty consulta.veterinario ? consulta.veterinario.id : ''}${not empty consulta and not empty consulta.veterinario ? ' - ' : ''}${not empty consulta and not empty consulta.veterinario ? consulta.veterinario.nome : ''}"
+               placeholder="Buscar vet por nome, ID ou CRMV"
+               value="${vetLabel}"
                autocomplete="off"/>
-        <input type="hidden" name="vetId" id="vetIdHidden" value="${not empty consulta and not empty consulta.veterinario ? consulta.veterinario.id : ''}"/>
+
+        <input type="hidden" name="vetId" id="vetIdHidden"
+               value="${not empty consulta and not empty consulta.veterinario ? consulta.veterinario.id : ''}"/>
+
         <datalist id="vetOptions">
             <c:forEach var="vet" items="${listaVets}">
-            <option value="#${vet.id} - ${vet.nome}" data-id="${vet.id}"></option>
+                <option
+                    value="#${vet.id} - ${vet.nome}${not empty vet.crmv ? ' | ' : ''}${not empty vet.crmv ? vet.crmv : ''}"
+                    data-id="${vet.id}">
+                </option>
             </c:forEach>
         </datalist>
     </div>
@@ -90,7 +118,8 @@
 <div class="form-row single">
     <div class="form-group">
         <label>Diagnóstico / Comentários</label>
-        <textarea name="diagnostico" placeholder="Registre observações do atendimento, diagnóstico e recomendações.">${not empty consulta and not empty consulta.diagnostico ? consulta.diagnostico : ''}</textarea>
+        <textarea name="diagnostico"
+                  placeholder="Registre observações do atendimento">${not empty consulta and not empty consulta.diagnostico ? consulta.diagnostico : ''}</textarea>
     </div>
 </div>
 
@@ -102,8 +131,11 @@
 </form>
 </div>
 </div>
+
 </main>
+
 <script src="${pageContext.request.contextPath}/scripts/consulta.js" defer></script>
 <script src="${pageContext.request.contextPath}/scripts/form-consulta.js" defer></script>
+
 </body>
 </html>
