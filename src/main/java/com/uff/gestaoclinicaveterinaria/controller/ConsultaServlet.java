@@ -3,7 +3,10 @@ package com.uff.gestaoclinicaveterinaria.controller;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAO;
 import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAOImpl;
@@ -25,6 +28,8 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/consultas")
 public class ConsultaServlet extends HttpServlet {
 
+    private static final DateTimeFormatter DATA_CONSULTA_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     private ConsultaDAO consultaDAO = new ConsultaDAOImpl();
     private PetDAO petDAO = new PetDAOImpl();
     private VeterinarioDAO vetDAO = new VeterinarioDAOImpl();
@@ -39,11 +44,40 @@ public class ConsultaServlet extends HttpServlet {
     }
 
     private LocalDate parseData(String valor) {
+        if (valor == null || !valor.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+            return null;
+        }
         try {
             return LocalDate.parse(valor);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private Map<Long, String> montarDatasConsultaFormatadas(List<Consulta> lista) {
+        Map<Long, String> datasFormatadas = new HashMap<>();
+        if (lista == null) {
+            return datasFormatadas;
+        }
+
+        for (Consulta consulta : lista) {
+            if (consulta == null || consulta.getId() == null || consulta.getDataConsulta() == null) {
+                continue;
+            }
+            datasFormatadas.put(consulta.getId(), consulta.getDataConsulta().format(DATA_CONSULTA_FMT));
+        }
+
+        return datasFormatadas;
+    }
+
+    private void encaminharListaConsultas(HttpServletRequest request,
+                                          HttpServletResponse response,
+                                          List<Consulta> lista) throws ServletException, IOException {
+        request.setAttribute("listaDeConsultas", lista);
+        request.setAttribute("datasConsultaFormatadas", montarDatasConsultaFormatadas(lista));
+        request.setAttribute("buscaParam", request.getParameter("busca") != null ? request.getParameter("busca") : "");
+        request.setAttribute("dataFiltroParam", request.getParameter("dataConsulta") != null ? request.getParameter("dataConsulta") : "");
+        request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
     }
 
     @Override
@@ -79,9 +113,7 @@ public class ConsultaServlet extends HttpServlet {
                 return;
             }
             List<Consulta> lista = consultaDAO.buscarPorPet(petId);
-
-            request.setAttribute("listaDeConsultas", lista);
-            request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
+            encaminharListaConsultas(request, response, lista);
 
         } else if ("buscarPorData".equals(acao)) {
 
@@ -93,9 +125,7 @@ public class ConsultaServlet extends HttpServlet {
             }
 
             List<Consulta> lista = consultaDAO.buscarPorData(vetId, dataConsulta);
-
-            request.setAttribute("listaDeConsultas", lista);
-            request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
+            encaminharListaConsultas(request, response, lista);
 
         } else if ("editar".equals(acao)) {
 
@@ -123,13 +153,14 @@ public class ConsultaServlet extends HttpServlet {
             LocalDate data = null;
 
             if (dataParam != null && !dataParam.isEmpty()) {
-                data = LocalDate.parse(dataParam);
+                data = parseData(dataParam);
+                if (data == null) {
+                    request.setAttribute("erroFiltroData", "Data invalida. Use o formato AAAA-MM-DD.");
+                }
             }
 
             List<Consulta> lista = consultaDAO.filtrar(busca, data);
-
-            request.setAttribute("listaDeConsultas", lista);
-            request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
+            encaminharListaConsultas(request, response, lista);
 
         } else if ("novo".equals(acao)) {
 
@@ -150,8 +181,7 @@ public class ConsultaServlet extends HttpServlet {
                 lista = consultaDAO.listarTodos();
             }
 
-            request.setAttribute("listaDeConsultas", lista);
-            request.getRequestDispatcher("/lista-consultas.jsp").forward(request, response);
+            encaminharListaConsultas(request, response, lista);
         }
     }
 
@@ -184,6 +214,7 @@ public class ConsultaServlet extends HttpServlet {
 
         LocalDateTime dataConsulta = LocalDateTime.parse(request.getParameter("dataConsulta"));
         String motivo = request.getParameter("motivo");
+        String diagnostico = request.getParameter("diagnostico");
 
         Long petId = Long.parseLong(request.getParameter("petId"));
         Pet pet = new Pet();
@@ -200,6 +231,7 @@ public class ConsultaServlet extends HttpServlet {
             consulta.setId(id);
             consulta.setDataConsulta(dataConsulta);
             consulta.setMotivo(motivo);
+            consulta.setDiagnostico(diagnostico);
             consulta.setPet(pet);
             consulta.setVeterinario(vet);
 
@@ -210,6 +242,7 @@ public class ConsultaServlet extends HttpServlet {
             Consulta consultaNova = new Consulta();
             consultaNova.setDataConsulta(dataConsulta);
             consultaNova.setMotivo(motivo);
+            consultaNova.setDiagnostico(diagnostico);
             consultaNova.setPet(pet);
             consultaNova.setVeterinario(vet);
 

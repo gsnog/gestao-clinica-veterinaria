@@ -1,11 +1,13 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.uff.gestaoclinicaveterinaria.dao.VeterinarioDAO;
 import com.uff.gestaoclinicaveterinaria.dao.VeterinarioDAOImpl;
 import com.uff.gestaoclinicaveterinaria.model.Veterinario;
+import com.uff.gestaoclinicaveterinaria.util.SearchFilterUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,6 +20,49 @@ import jakarta.servlet.http.HttpSession;
 public class VeterinarioServlet extends HttpServlet {
 
     private VeterinarioDAO veterinarioDao = new VeterinarioDAOImpl();
+
+    private List<Veterinario> filtrarVeterinarios(List<Veterinario> veterinarios, String busca) {
+        String buscaNormalizada = SearchFilterUtil.normalize(busca);
+        if (buscaNormalizada.isEmpty()) {
+            return veterinarios;
+        }
+
+        List<Veterinario> filtrados = new ArrayList<>();
+        for (Veterinario vet : veterinarios) {
+            if (SearchFilterUtil.startsWithNormalized(vet.getNome(), buscaNormalizada)
+                    || SearchFilterUtil.startsWithNormalized(vet.getCrmv(), buscaNormalizada)
+                    || SearchFilterUtil.startsWithNormalized(vet.getEspecialidade(), buscaNormalizada)
+                    || SearchFilterUtil.startsWithNormalized(String.valueOf(vet.getId()), buscaNormalizada)) {
+                filtrados.add(vet);
+            }
+        }
+
+        return filtrados;
+    }
+
+    private void encaminharListaVeterinarios(HttpServletRequest request,
+                                             HttpServletResponse response,
+                                             List<Veterinario> lista,
+                                             Long idLogado) throws ServletException, IOException {
+        Veterinario vetLogado = null;
+        List<Veterinario> outrosVeterinarios = new ArrayList<>();
+
+        for (Veterinario vet : lista) {
+            if (vet == null || vet.getId() == null) {
+                continue;
+            }
+            if (idLogado != null && vet.getId().equals(idLogado)) {
+                vetLogado = vet;
+                continue;
+            }
+            outrosVeterinarios.add(vet);
+        }
+
+        request.setAttribute("vetLogado", vetLogado);
+        request.setAttribute("listaDeVeterinarios", outrosVeterinarios);
+        request.setAttribute("buscaParam", request.getParameter("busca") != null ? request.getParameter("busca") : "");
+        request.getRequestDispatcher("/lista-veterinarios.jsp").forward(request, response);
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,9 +89,13 @@ public class VeterinarioServlet extends HttpServlet {
             request.getRequestDispatcher("/form-veterinario.jsp").forward(request, response);
 
         } else {
+            HttpSession session = request.getSession(false);
+            Long idLogado = session != null ? (Long) session.getAttribute("usuarioId") : null;
+
             List<Veterinario> lista = veterinarioDao.listarTodos();
-            request.setAttribute("listaDeVeterinarios", lista);
-            request.getRequestDispatcher("/lista-veterinarios.jsp").forward(request, response);
+            lista = filtrarVeterinarios(lista, request.getParameter("busca"));
+
+            encaminharListaVeterinarios(request, response, lista, idLogado);
         }
     }
 
