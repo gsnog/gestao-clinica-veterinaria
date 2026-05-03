@@ -10,6 +10,7 @@
     String dataFiltroParam = request.getParameter("dataConsulta") != null ? request.getParameter("dataConsulta") : "";
 %>
 
+
 <main class="main">
 
 <div class="topbar">
@@ -36,6 +37,7 @@
     <label>Data</label>
     <input type="date" name="dataConsulta" value="<%= dataFiltroParam %>"/>
     <button type="submit" class="btn btn-outline">Filtrar</button>
+    <a class="btn btn-primary" href="${pageContext.request.contextPath}/consultas">Limpar filtros</a>
 </form>
 
 </div>
@@ -68,17 +70,19 @@ if (lista != null) {
     <td><%= c.getVeterinario() != null ? c.getVeterinario().getNome() : "" %></td>
 
     <% if (isVetConsulta) { %>
-    <td class="actions">
-        <a class="btn btn-edit"
-           href="consultas?acao=editar&id=<%= c.getId() %>">Editar</a>
+    <td>
+        <div class="actions">
+            <a class="btn btn-edit"
+               href="consultas?acao=editar&id=<%= c.getId() %>">Editar</a>
 
-        <form method="post" action="consultas" style="display:inline"
-              onsubmit="return confirm('Tem certeza?')">
-            <%@ include file="components/csrf_token.jsp" %>
-            <input type="hidden" name="acao" value="deletar"/>
-            <input type="hidden" name="id" value="<%= c.getId() %>"/>
-            <button type="submit" class="btn btn-danger">Excluir</button>
-        </form>
+            <form method="post" action="consultas" style="display:inline"
+                  onsubmit="return confirm('Tem certeza?')">
+                <%@ include file="components/csrf_token.jsp" %>
+                <input type="hidden" name="acao" value="deletar"/>
+                <input type="hidden" name="id" value="<%= c.getId() %>"/>
+                <button type="submit" class="btn btn-danger">Excluir</button>
+            </form>
+        </div>
     </td>
     <% } %>
 </tr>

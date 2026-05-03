@@ -8,7 +8,9 @@
 <%
     Usuario usuario = (Usuario) request.getAttribute("usuario");
     String telefoneValue = (String) request.getAttribute("telefoneValue");
+    String emailValue = (String) request.getAttribute("emailValue");
     boolean mostrarTelefoneTutor = usuario != null && "TUTOR".equals(usuario.getRole());
+    boolean mostrarFormContato = usuario != null && ("TUTOR".equals(usuario.getRole()) || "VETERINARIO".equals(usuario.getRole()));
 %>
 
 <div class="topbar">
@@ -40,7 +42,9 @@
         </div>
         <div class="profile-row">
             <span class="profile-label">Perfil</span>
-            <span class="badge badge-lav"><%= usuario != null && usuario.getRole() != null ? usuario.getRole() : "-" %></span>
+            <span class="profile-value">
+                <span class="badge badge-lav profile-role-badge"><%= usuario != null && usuario.getRole() != null ? usuario.getRole() : "-" %></span>
+            </span>
         </div>
         <% if (mostrarTelefoneTutor) { %>
         <div class="profile-row">
@@ -51,12 +55,12 @@
     </div>
 </div>
 
-<% if (mostrarTelefoneTutor) { %>
+<% if (mostrarFormContato) { %>
 <div class="card">
     <div class="card-header">
         <div class="card-title profile-card-title">
-            <span class="profile-card-icon">📞</span>
-            <span>Contato do Tutor</span>
+            <span class="profile-card-icon"><%= mostrarTelefoneTutor ? "📞" : "✉️" %></span>
+            <span><%= mostrarTelefoneTutor ? "Contato do Tutor" : "E-mail" %></span>
         </div>
     </div>
 
@@ -75,6 +79,21 @@
 
         <div class="form-row single">
             <div class="form-group">
+                <label for="email">E-mail</label>
+                <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="seuemail@exemplo.com"
+                    value="<%= emailValue != null ? emailValue : (usuario != null && usuario.getEmail() != null ? usuario.getEmail() : "") %>"
+                    required
+                />
+            </div>
+        </div>
+
+        <% if (mostrarTelefoneTutor) { %>
+        <div class="form-row single">
+            <div class="form-group">
                 <label for="telefone">Telefone</label>
                 <input
                     type="tel"
@@ -89,36 +108,27 @@
                 <small class="text-muted">Formato: (DDD) 99999-9999</small>
             </div>
         </div>
+        <% } %>
 
         <div class="form-actions">
-            <button class="btn btn-submit profile-submit">Salvar telefone</button>
+            <button class="btn btn-submit profile-submit">Salvar informações de contato</button>
         </div>
     </form>
+
+    <% if (mostrarTelefoneTutor) { %>
+    <form action="${pageContext.request.contextPath}/perfil" method="post"
+          onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Essa ação não pode ser desfeita.');"
+          style="margin-top:12px;">
+        <%@ include file="components/csrf_token.jsp" %>
+        <input type="hidden" name="acao" value="deletarConta"/>
+        <button type="submit" class="btn btn-danger">Excluir minha conta</button>
+    </form>
+    <% } %>
     </div>
 </div>
 <% } %>
 
 </main>
-<script>
-const telefoneInput = document.getElementById("telefone");
-
-if (telefoneInput) {
-    telefoneInput.addEventListener("input", function(e) {
-        let v = e.target.value.replace(/\D/g, "");
-
-        if (v.length > 11) v = v.slice(0, 11);
-
-        if (v.length <= 10) {
-            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-            v = v.replace(/(\d{4})(\d)/, "$1-$2");
-        } else {
-            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-            v = v.replace(/(\d{5})(\d)/, "$1-$2");
-        }
-
-        e.target.value = v;
-    });
-}
-</script>
+<script src="${pageContext.request.contextPath}/scripts/perfil.js" defer></script>
 </body>
 </html>
