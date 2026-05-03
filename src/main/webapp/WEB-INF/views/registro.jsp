@@ -1,10 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%
-    String roleValue = (String) request.getAttribute("roleValue");
-    String telefoneValue = (String) request.getAttribute("telefoneValue");
-    String crmvValue = (String) request.getAttribute("crmvValue");
-    String especialidadeValue = (String) request.getAttribute("especialidadeValue");
-%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -32,8 +27,8 @@
 
                 <form action="${pageContext.request.contextPath}/registro" method="post" class="auth-form">
                     <div class="form-group">
-                        <label for="nome">Nome</label>
-                        <input type="text" id="nome" name="nome" value="${nomeValue}" required>
+                        <label for="nome">Nome e sobrenome</label>
+                        <input type="text" id="nome" name="nome" class="js-proper-name" value="${nomeValue}" placeholder="Ex.: Maria Silva" required>
                     </div>
 
                     <div class="form-group">
@@ -50,48 +45,48 @@
                         <label for="role">Tipo de usuário</label>
                         <select id="role" name="role" required>
                             <option value="">Selecione</option>
-                            <option value="TUTOR" <%= "TUTOR".equals(roleValue) ? "selected" : "" %>>Tutor</option>
-                            <option value="VETERINARIO" <%= "VETERINARIO".equals(roleValue) ? "selected" : "" %>>Veterinário</option>
+                            <option value="TUTOR" ${roleValue eq 'TUTOR' ? 'selected' : ''}>Tutor</option>
+                            <option value="VETERINARIO" ${roleValue eq 'VETERINARIO' ? 'selected' : ''}>Veterinário</option>
                         </select>
                     </div>
 
-                    <div class="form-group" id="tutorFields" style="display:none;">
+                    <div class="form-group is-hidden" id="tutorFields">
                         <label for="telefone">Telefone</label>
                         <input type="tel" id="telefone" name="telefone"
                                placeholder="(21) 99999-9999"
                                maxlength="15"
                                pattern="\(\d{2}\)\s\d{4,5}-\d{4}"
-                               value="<%= telefoneValue != null ? telefoneValue : "" %>">
+                               value="${telefoneValue}">
                     </div>
 
-                    <div id="vetFields" style="display:none;">
+                    <div id="vetFields" class="is-hidden">
                         <div class="form-group">
                             <label for="crmv">CRMV</label>
                             <input type="text" id="crmv" name="crmv"
                                    placeholder="CRMV-RJ 12345"
                                    maxlength="14"
                                    pattern="CRMV-[A-Z]{2} [0-9]{5}"
-                                   value="<%= crmvValue != null ? crmvValue : "" %>">
+                                value="${crmvValue}">
                         </div>
 
                         <div class="form-group">
                             <label for="especialidade">Especialidade</label>
                             <input type="text" id="especialidade" name="especialidade"
                                    placeholder="Ex.: Clínica Geral"
-                                   value="<%= especialidadeValue != null ? especialidadeValue : "" %>">
+                                value="${especialidadeValue}">
                         </div>
                     </div>
 
                     <button type="submit" class="btn btn-submit auth-submit">Cadastrar</button>
                 </form>
 
-                <% if (request.getAttribute("erro") != null) { %>
+                <c:if test="${not empty erro}">
                 <p class="auth-message auth-error">${erro}</p>
-                <% } %>
+                </c:if>
 
-                <% if (request.getAttribute("sucesso") != null) { %>
+                <c:if test="${not empty sucesso}">
                 <p class="auth-message auth-success">${sucesso}</p>
-                <% } %>
+                </c:if>
 
                 <p class="auth-switch">
                     Já tem conta?

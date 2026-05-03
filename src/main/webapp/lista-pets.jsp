@@ -1,14 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
-<%@ page import="java.util.List" %>
-<%@ page import="com.uff.gestaoclinicaveterinaria.model.Pet" %>
-<%
-boolean isVetFiltro = "VETERINARIO".equals(session.getAttribute("usuarioRole"));
-String buscaParam = request.getParameter("busca") != null ? request.getParameter("busca") : "";
-String buscaPet = buscaParam.trim().toLowerCase();
-boolean filtroPetAtivo = !buscaPet.isEmpty();
-%>
+
+<c:set var="isVetFiltro" value="${sessionScope.usuarioRole eq 'VETERINARIO'}" />
 
 <main class="main">
 
@@ -23,16 +18,16 @@ boolean filtroPetAtivo = !buscaPet.isEmpty();
     </a>
 </div>
 
-<% if (isVetFiltro) { %>
+<c:if test="${isVetFiltro}">
 <div class="filter-bar">
-    <form action="pets" method="get" class="filter-group">
-        <label>Busca</label>
-        <input type="text" name="busca" placeholder="Nome, raça, tutor ou ID" value="<%= buscaParam %>"/>
-        <button type="submit" class="btn btn-outline">Filtrar</button>
+    <form action="pets" method="get" class="filter-group js-search-filter-form">
+        <label for="petsBuscaInput">Busca</label>
+        <input type="text" name="busca" id="petsBuscaInput" class="js-search-filter-input" placeholder="Nome ou ID do pet" value="${buscaParam}" autocomplete="off"/>
+        <button type="submit" class="btn btn-filter">Filtrar</button>
         <a class="btn btn-primary" href="${pageContext.request.contextPath}/pets">Limpar filtros</a>
     </form>
 </div>
-<% } %>
+</c:if>
 
 <div class="card">
 <table>
@@ -47,80 +42,42 @@ boolean filtroPetAtivo = !buscaPet.isEmpty();
 </thead>
 
 <tbody>
-<%
-List<Pet> lista = (List<Pet>) request.getAttribute("listaDePets");
-
-// meses em pt-BR sem ponto
-String[] meses = {"jan", "fev", "mar", "abr", "mai", "jun",
-                  "jul", "ago", "set", "out", "nov", "dez"};
-
-if (lista != null) {
-    for (Pet p : lista) {
-
-        String tutorNome = p.getTutor() != null && p.getTutor().getNome() != null ? p.getTutor().getNome() : "";
-        String tutorId = p.getTutor() != null && p.getTutor().getId() != null ? String.valueOf(p.getTutor().getId()) : "";
-
-        boolean petPassaFiltroTexto = !filtroPetAtivo
-            || (p.getNome() != null && p.getNome().toLowerCase().contains(buscaPet))
-            || (p.getRaca() != null && p.getRaca().toLowerCase().contains(buscaPet))
-            || tutorNome.toLowerCase().contains(buscaPet)
-            || String.valueOf(p.getId()).contains(buscaPet)
-            || tutorId.contains(buscaPet);
-
-        if (!petPassaFiltroTexto) {
-            continue;
-        }
-
-        String dataFormatada = "";
-
-        if (p.getDataNascimento() != null) {
-            int dia = p.getDataNascimento().getDayOfMonth();
-            int mes = p.getDataNascimento().getMonthValue();
-            int ano = p.getDataNascimento().getYear();
-
-            String diaFormatado = String.format("%02d", dia);
-
-            dataFormatada = diaFormatado + " " + meses[mes - 1] + " " + ano;
-        }
-%>
+<c:forEach var="pet" items="${listaDePets}">
 <tr>
     <td>
         <div class="pet-cell">
             <div class="pet-avatar">🐾</div>
             <div>
-                <div class="pet-name"><%= p.getNome() %></div>
-                <div class="table-id">#<%= p.getId() %></div>
+                <div class="pet-name">${pet.nome}</div>
+                <div class="table-id">#${pet.id}</div>
             </div>
         </div>
     </td>
 
-    <td><%= p.getRaca() %></td>
+    <td>${pet.raca}</td>
 
-    <td><%= dataFormatada %></td>
+    <td>${datasNascimentoFormatadas[pet.id]}</td>
 
     <td>
-        <% if (p.getTutor() != null) { %>
-            <span class="table-id">#<%= p.getTutor().getId() %></span>
-        <% } %>
+        <c:if test="${not empty pet.tutor}">
+            <span class="table-id">#${pet.tutor.id}</span>
+        </c:if>
     </td>
 
     <td class="actions">
         <a class="btn btn-edit"
-           href="pets?acao=editar&id=<%= p.getId() %>">Editar</a>
+           href="pets?acao=editar&id=${pet.id}">Editar</a>
 
-        <form method="post" action="pets" style="display:inline"
-              onsubmit="return confirm('Tem certeza?')">
+          <form method="post" action="pets" class="inline-form js-confirm-submit"
+              data-confirm-message="Tem certeza?">
             <%@ include file="components/csrf_token.jsp" %>
             <input type="hidden" name="acao" value="deletar"/>
-            <input type="hidden" name="id" value="<%= p.getId() %>"/>
+            <input type="hidden" name="id" value="${pet.id}"/>
             <button type="submit" class="btn btn-danger">Excluir</button>
         </form>
     </td>
 </tr>
-<%
-    }
-}
-%>
+</c:forEach>
 </tbody>
 </table>
 </div>

@@ -116,9 +116,9 @@
     </form>
 
     <% if (mostrarTelefoneTutor) { %>
-    <form action="${pageContext.request.contextPath}/perfil" method="post"
-          onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Essa ação não pode ser desfeita.');"
-          style="margin-top:12px;">
+        <form action="${pageContext.request.contextPath}/perfil" method="post"
+            class="mt-12 js-confirm-submit"
+            data-confirm-message="Tem certeza que deseja excluir sua conta? Essa ação não pode ser desfeita.">
         <%@ include file="components/csrf_token.jsp" %>
         <input type="hidden" name="acao" value="deletarConta"/>
         <button type="submit" class="btn btn-danger">Excluir minha conta</button>

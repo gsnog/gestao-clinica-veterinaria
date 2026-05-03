@@ -1,17 +1,12 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
-<%@ page import="com.uff.gestaoclinicaveterinaria.model.Veterinario" %>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-
-<%
-Veterinario vet = (Veterinario) request.getAttribute("veterinario");
-if (vet == null) {
-    response.sendRedirect(request.getContextPath() + "/veterinarios");
-    return;
-}
-%>
 
 <main class="main">
+
+<c:choose>
+<c:when test="${not empty veterinario}">
 
 <div class="form-card">
 
@@ -30,16 +25,14 @@ if (vet == null) {
 <form action="veterinarios" method="post" id="vetForm" novalidate>
 <%@ include file="components/csrf_token.jsp" %>
 
-<% if (vet != null) { %>
-<input type="hidden" name="id" value="<%= vet.getId() %>"/>
+<input type="hidden" name="id" value="${veterinario.id}"/>
 <input type="hidden" name="acao" value="atualizar"/>
-<% } %>
 
 <div class="form-row">
     <div class="form-group">
         <label>Nome</label>
-        <input type="text" name="nomeVet"
-               value="<%= vet != null ? vet.getNome() : "" %>" required/>
+        <input type="text" name="nomeVet" class="js-proper-name"
+               value="${veterinario.nome}" required/>
     </div>
 
     <div class="form-group">
@@ -51,7 +44,7 @@ if (vet == null) {
                maxlength="14"
                pattern="CRMV-[A-Z]{2} [0-9]{5}"
                title="Formato: CRMV-UF 12345"
-               value="<%= vet != null ? vet.getCrmv() : "" %>"
+               value="${veterinario.crmv}"
                required/>
         <small>Formato: CRMV-UF 12345</small>
     </div>
@@ -81,7 +74,7 @@ if (vet == null) {
                id="especialidadeCustom"
                name="especialidadeCustom"
                placeholder="Digite a especialidade"
-               style="display:none; margin-top:8px;"/>
+             class="is-hidden mt-8"/>
     </div>
 </div>
 
@@ -93,6 +86,17 @@ if (vet == null) {
 </form>
 </div>
 </div>
+
+</c:when>
+<c:otherwise>
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Veterinário não encontrado</div>
+        <a href="${pageContext.request.contextPath}/veterinarios" class="btn btn-primary">Voltar</a>
+    </div>
+</div>
+</c:otherwise>
+</c:choose>
 
 </main>
 <script src="${pageContext.request.contextPath}/scripts/form-veterinario.js" defer></script>

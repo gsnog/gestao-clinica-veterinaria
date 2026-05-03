@@ -1,14 +1,9 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
-<%@ page import="java.util.List" %>
-<%@ page import="com.uff.gestaoclinicaveterinaria.model.Veterinario" %>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%
-boolean isVetFiltro = "VETERINARIO".equals(session.getAttribute("usuarioRole"));
-String buscaParam = request.getParameter("busca") != null ? request.getParameter("busca") : "";
-String buscaVet = buscaParam.trim().toLowerCase();
-boolean filtroVetAtivo = !buscaVet.isEmpty();
-%>
+
+<c:set var="isVetFiltro" value="${sessionScope.usuarioRole eq 'VETERINARIO'}" />
 
 <main class="main">
 
@@ -19,16 +14,16 @@ boolean filtroVetAtivo = !buscaVet.isEmpty();
     </div>
 </div>
 
-<% if (isVetFiltro) { %>
+<c:if test="${isVetFiltro}">
 <div class="filter-bar">
-    <form action="veterinarios" method="get" class="filter-group">
-        <label>Busca</label>
-        <input type="text" name="busca" placeholder="Nome, CRMV, especialidade ou ID" value="<%= buscaParam %>"/>
-        <button type="submit" class="btn btn-outline">Filtrar</button>
+    <form action="veterinarios" method="get" class="filter-group js-search-filter-form">
+        <label for="vetsBuscaInput">Busca</label>
+        <input type="text" name="busca" id="vetsBuscaInput" class="js-search-filter-input" placeholder="Nome, CRMV, especialidade ou ID" value="${buscaParam}" autocomplete="off"/>
+        <button type="submit" class="btn btn-filter">Filtrar</button>
         <a class="btn btn-primary" href="${pageContext.request.contextPath}/veterinarios">Limpar filtros</a>
     </form>
 </div>
-<% } %>
+</c:if>
 
 <div class="card">
 <table>
@@ -43,89 +38,46 @@ boolean filtroVetAtivo = !buscaVet.isEmpty();
 </thead>
 
 <tbody>
-<%
-List<Veterinario> lista = (List<Veterinario>) request.getAttribute("listaDeVeterinarios");
-Long usuarioIdLogado = (Long) session.getAttribute("usuarioId");
-Veterinario vetLogado = null;
-
-if (lista != null && usuarioIdLogado != null) {
-    for (Veterinario v : lista) {
-        if (usuarioIdLogado.equals(v.getId())) {
-            vetLogado = v;
-            break;
-        }
-    }
-}
-
-if (lista != null) {
-    if (vetLogado != null) {
-        boolean vetLogadoPassaFiltro = !filtroVetAtivo
-            || (vetLogado.getNome() != null && vetLogado.getNome().toLowerCase().contains(buscaVet))
-            || (vetLogado.getCrmv() != null && vetLogado.getCrmv().toLowerCase().contains(buscaVet))
-            || (vetLogado.getEspecialidade() != null && vetLogado.getEspecialidade().toLowerCase().contains(buscaVet))
-            || String.valueOf(vetLogado.getId()).contains(buscaVet);
-        if (vetLogadoPassaFiltro) {
-%>
+<c:if test="${not empty vetLogado}">
 <tr>
-    <td><%= vetLogado.getNome() %></td>
-    <td><%= vetLogado.getCrmv() %></td>
-    <td><%= vetLogado.getEspecialidade() %></td>
-    <td class="table-id">#<%= vetLogado.getId() %></td>
+    <td class="cap">${vetLogado.nome}</td>
+    <td>${vetLogado.crmv}</td>
+    <td>${vetLogado.especialidade}</td>
+    <td class="table-id">#${vetLogado.id}</td>
 
     <td class="actions">
         <a class="btn btn-edit"
-           href="veterinarios?acao=editar&id=<%= vetLogado.getId() %>">Editar</a>
+           href="veterinarios?acao=editar&id=${vetLogado.id}">Editar</a>
 
-        <form method="post" action="veterinarios" style="display:inline"
-              onsubmit="return confirm('Tem certeza?')">
+          <form method="post" action="veterinarios" class="inline-form js-confirm-submit"
+              data-confirm-message="Tem certeza?">
             <%@ include file="components/csrf_token.jsp" %>
             <input type="hidden" name="acao" value="deletar"/>
-            <input type="hidden" name="id" value="<%= vetLogado.getId() %>"/>
+            <input type="hidden" name="id" value="${vetLogado.id}"/>
             <button type="submit" class="btn btn-danger">Excluir</button>
         </form>
     </td>
 </tr>
-<%
-        }
-    }
+</c:if>
 
-    for (Veterinario v : lista) {
-        boolean isVetLogado = usuarioIdLogado != null && usuarioIdLogado.equals(v.getId());
-        if (isVetLogado) {
-            continue;
-        }
-
-        boolean vetPassaFiltro = !filtroVetAtivo
-            || (v.getNome() != null && v.getNome().toLowerCase().contains(buscaVet))
-            || (v.getCrmv() != null && v.getCrmv().toLowerCase().contains(buscaVet))
-            || (v.getEspecialidade() != null && v.getEspecialidade().toLowerCase().contains(buscaVet))
-            || String.valueOf(v.getId()).contains(buscaVet);
-        if (!vetPassaFiltro) {
-            continue;
-        }
-%>
+<c:forEach var="vet" items="${listaDeVeterinarios}">
 <tr>
-    <td><%= v.getNome() %></td>
-    <td><%= v.getCrmv() %></td>
-    <td><%= v.getEspecialidade() %></td>
-     <td class="table-id">#<%= v.getId() %></td>
+    <td class="cap">${vet.nome}</td>
+    <td>${vet.crmv}</td>
+    <td>${vet.especialidade}</td>
+     <td class="table-id">#${vet.id}</td>
 
     <td>
         <div class="actions" title="O veterinário só pode alterar ou excluir o próprio perfil.">
-            <span class="btn btn-edit"
-                  style="opacity:.6; cursor:not-allowed;"
+            <span class="btn btn-edit btn-disabled"
                   aria-disabled="true">Editar</span>
 
-            <span class="btn btn-danger"
-                  style="opacity:.6; cursor:not-allowed;"
+            <span class="btn btn-danger btn-disabled"
                   aria-disabled="true">Excluir</span>
         </div>
     </td>
 </tr>
-<%
-    }
-}
-%>
+</c:forEach>
 </tbody>
 </table>
 </div>
