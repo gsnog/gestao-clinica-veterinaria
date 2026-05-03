@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/veterinarios")
 public class VeterinarioServlet extends HttpServlet {
@@ -26,6 +27,14 @@ public class VeterinarioServlet extends HttpServlet {
 
         if (acao != null && acao.equals("editar")) {
             Long id = Long.parseLong(request.getParameter("id"));
+
+            HttpSession session = request.getSession(false);
+            Long idLogado = session != null ? (Long) session.getAttribute("usuarioId") : null;
+            if (idLogado == null || !idLogado.equals(id)) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+
             Veterinario vet = veterinarioDao.buscarPorId(id);
             if (vet == null) {
                 response.sendRedirect(request.getContextPath() + "/veterinarios");
@@ -49,8 +58,19 @@ public class VeterinarioServlet extends HttpServlet {
 
         if ("deletar".equals(acao)) {
             Long id = Long.parseLong(request.getParameter("id"));
+
+            HttpSession session = request.getSession(false);
+            Long idLogado = session != null ? (Long) session.getAttribute("usuarioId") : null;
+            if (idLogado == null || !idLogado.equals(id)) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+
             veterinarioDao.deletar(id);
-            response.sendRedirect(request.getContextPath() + "/veterinarios");
+            if (session != null) {
+                session.invalidate();
+            }
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -61,6 +81,14 @@ public class VeterinarioServlet extends HttpServlet {
 
         if (acao != null && acao.equals("atualizar")) {
             Long id = Long.parseLong(request.getParameter("id"));
+
+            HttpSession session = request.getSession(false);
+            Long idLogado = session != null ? (Long) session.getAttribute("usuarioId") : null;
+            if (idLogado == null || !idLogado.equals(id)) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+
             Veterinario vet = new Veterinario();
             vet.setId(id);
             vet.setNome(nome);

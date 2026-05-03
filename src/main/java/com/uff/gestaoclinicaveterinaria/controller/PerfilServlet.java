@@ -37,7 +37,11 @@ public class PerfilServlet extends HttpServlet {
             request.setAttribute("sucesso", "Telefone atualizado com sucesso.");
         }
 
-        carregarPerfil(request, response, usuario, null);
+        if ("1".equals(request.getParameter("contatoAtualizado"))) {
+            request.setAttribute("sucesso", "Contato atualizado com sucesso.");
+        }
+
+        carregarPerfil(request, response, usuario, null, null);
     }
 
     @Override
@@ -49,22 +53,69 @@ public class PerfilServlet extends HttpServlet {
             return;
         }
 
+        String acao = request.getParameter("acao");
+
+        if ("deletarConta".equals(acao)) {
+            if (!"TUTOR".equals(usuario.getRole())) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+
+            usuarioDAO.deletar(usuario.getId());
+
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         String telefone = InputSanitizer.sanitizarTexto(request.getParameter("telefone"));
+        String email = InputSanitizer.sanitizarTexto(request.getParameter("email"));
 
-        if (InputValidator.isNullOrBlank(telefone)) {
-            request.setAttribute("erro", "Informe o telefone.");
-            carregarPerfil(request, response, usuario, telefone);
-            return;
-        }
-
-        if (!InputValidator.telefoneValido(telefone)) {
-            request.setAttribute("erro", "Telefone inválido. Use o formato (DDD) 99999-9999.");
-            carregarPerfil(request, response, usuario, telefone);
-            return;
-        }
-
-        if (!"TUTOR".equals(usuario.getRole())) {
+        if (!("TUTOR".equals(usuario.getRole()) || "VETERINARIO".equals(usuario.getRole()))) {
             response.sendRedirect(request.getContextPath() + "/perfil");
+            return;
+        }
+
+        if (InputValidator.isNullOrBlank(email)) {
+            request.setAttribute("erro", "Informe o e-mail.");
+            carregarPerfil(request, response, usuario, telefone, email);
+            return;
+        }
+
+        if (!InputValidator.emailValido(email)) {
+            request.setAttribute("erro", "E-mail inválido.");
+            carregarPerfil(request, response, usuario, telefone, email);
+            return;
+        }
+
+        if ("TUTOR".equals(usuario.getRole())) {
+            if (InputValidator.isNullOrBlank(telefone)) {
+                request.setAttribute("erro", "Informe o telefone.");
+                carregarPerfil(request, response, usuario, telefone, email);
+                return;
+            }
+
+            if (!InputValidator.telefoneValido(telefone)) {
+                request.setAttribute("erro", "Telefone inválido. Use o formato (DDD) 99999-9999.");
+                carregarPerfil(request, response, usuario, telefone, email);
+                return;
+            }
+        }
+
+        Usuario usuarioComMesmoEmail = usuarioDAO.buscarPorEmail(email);
+        if (usuarioComMesmoEmail != null && !usuario.getId().equals(usuarioComMesmoEmail.getId())) {
+            request.setAttribute("erro", "Este e-mail já está em uso.");
+            carregarPerfil(request, response, usuario, telefone, email);
+            return;
+        }
+
+        if ("VETERINARIO".equals(usuario.getRole())) {
+            usuarioDAO.atualizarEmail(usuario.getId(), email);
+            response.sendRedirect(request.getContextPath() + "/perfil?contatoAtualizado=1");
             return;
         }
 
@@ -76,8 +127,9 @@ public class PerfilServlet extends HttpServlet {
         }
         tutor.setTelefone(telefone);
         tutorDAO.atualizar(tutor);
+        usuarioDAO.atualizarEmail(usuario.getId(), email);
 
-        response.sendRedirect(request.getContextPath() + "/perfil?telefoneAtualizado=1");
+        response.sendRedirect(request.getContextPath() + "/perfil?contatoAtualizado=1");
     }
 
     private Usuario obterUsuarioLogado(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -93,10 +145,11 @@ public class PerfilServlet extends HttpServlet {
         return usuarioDAO.buscarPorId(idLogado);
     }
 
-    private void carregarPerfil(HttpServletRequest request, HttpServletResponse response, Usuario usuario, String telefonePreenchido)
+    private void carregarPerfil(HttpServletRequest request, HttpServletResponse response, Usuario usuario, String telefonePreenchido, String emailPreenchido)
             throws ServletException, IOException {
         request.setAttribute("usuario", usuario);
         request.setAttribute("telefoneValue", telefonePreenchido != null ? telefonePreenchido : buscarTelefone(usuario));
+        request.setAttribute("emailValue", emailPreenchido != null ? emailPreenchido : (usuario != null ? usuario.getEmail() : null));
         request.getRequestDispatcher("/perfil.jsp").forward(request, response);
     }
 
