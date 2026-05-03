@@ -31,6 +31,8 @@ if (tutor == null) {
 
         <%@ include file="components/csrf_token.jsp" %>
 
+        <%@ include file="components/csrf_token.jsp" %>
+
         <% if (tutor != null) { %>
             <input type="hidden" name="id" value="<%= tutor.getId() %>"/>
             <input type="hidden" name="acao" value="editar"/>

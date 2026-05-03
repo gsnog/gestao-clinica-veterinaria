@@ -1,12 +1,12 @@
 package com.uff.gestaoclinicaveterinaria.dao;
 
-import com.uff.gestaoclinicaveterinaria.model.DashboardDTO;
-import com.uff.gestaoclinicaveterinaria.util.ConnectionFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import com.uff.gestaoclinicaveterinaria.dto.DashboardDTO;
+import com.uff.gestaoclinicaveterinaria.util.ConnectionFactory;
 
 public class DashboardDAO {
 

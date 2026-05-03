@@ -1,25 +1,21 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
-import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAO;
-import com.uff.gestaoclinicaveterinaria.dao.ConsultaDAOImpl;
+import java.io.IOException;
+
 import com.uff.gestaoclinicaveterinaria.dao.DashboardDAO;
-import com.uff.gestaoclinicaveterinaria.dao.PetDAO;
-import com.uff.gestaoclinicaveterinaria.dao.PetDAOImpl;
-import com.uff.gestaoclinicaveterinaria.model.DashboardDTO;
+import com.uff.gestaoclinicaveterinaria.dto.DashboardDTO;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
 
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
 
-    private DashboardDAO dashboardDAO = new DashboardDAO();
-    private PetDAO petDAO = new PetDAOImpl();
-    private ConsultaDAO consultaDAO = new ConsultaDAOImpl();
+    private final DashboardDAO dashboardDAO = new DashboardDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -33,18 +29,13 @@ public class DashboardServlet extends HttpServlet {
         }
 
         String role = (String) session.getAttribute("usuarioRole");
-        DashboardDTO stats = new DashboardDTO();
 
         if ("TUTOR".equals(role)) {
-            Long idLogado = (Long) session.getAttribute("usuarioId");
-            stats.setTotalPets(petDAO.buscarPorTutor(idLogado).size());
-            stats.setTotalConsultas(consultaDAO.buscarPorTutor(idLogado).size());
-            stats.setTotalTutores(0);
-            stats.setTotalVeterinarios(0);
-        } else {
-            stats = dashboardDAO.obterEstatisticas();
+            response.sendRedirect(request.getContextPath() + "/pets");
+            return;
         }
 
+        DashboardDTO stats = dashboardDAO.obterEstatisticas();
         request.setAttribute("estatisticas", stats);
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
