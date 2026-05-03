@@ -43,14 +43,3 @@ CREATE TABLE consulta (
     FOREIGN KEY (veterinario_id) REFERENCES veterinario(usuario_id) 
         ON DELETE CASCADE
 );
-
-CREATE TABLE codigo_recuperacao_senha (
-    usuario_id BIGINT PRIMARY KEY,
-    codigo_hash VARCHAR(255) NOT NULL,
-    expira_em TIMESTAMP NOT NULL,
-    tentativas_restantes INT NOT NULL DEFAULT 5,
-    usado BOOLEAN NOT NULL DEFAULT FALSE,
-    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
-);
-
