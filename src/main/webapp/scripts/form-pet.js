@@ -13,7 +13,9 @@
             const nome = this.querySelector('[name="nomePet"]');
             const raca = this.querySelector('[name="racaPet"]');
             const data = this.querySelector('[name="dataNascimentoPet"]');
-            const tutor = this.querySelector('[name="tutorId"]');
+            const tutorInput = document.getElementById('tutorIdInput');
+            const tutorHidden = document.getElementById('tutorIdHidden');
+            const tutor = tutorHidden || this.querySelector('[name="tutorId"]');
 
             if (!nome.value.trim()) {
                 v.showError(nome, 'Informe o nome do pet.');
@@ -37,7 +39,7 @@
             }
 
             if (tutor && !tutor.disabled && !tutor.value) {
-                v.showError(tutor, 'Selecione um tutor.');
+                v.showError(tutorInput || tutor, 'Selecione um tutor valido na lista.');
                 ok = false;
             }
 
