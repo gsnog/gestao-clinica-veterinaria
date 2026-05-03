@@ -7,6 +7,79 @@
 (function () {
     'use strict';
 
+    let confirmModal = null;
+    let confirmResolver = null;
+
+    function ensureConfirmModal() {
+        if (confirmModal) {
+            return confirmModal;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-overlay is-hidden';
+        overlay.innerHTML = '' +
+            '<div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">' +
+            '  <h3 id="confirmTitle" class="confirm-title">Confirmar exclusão</h3>' +
+            '  <p class="confirm-text"></p>' +
+            '  <div class="confirm-actions">' +
+            '    <button type="button" class="btn btn-outline js-confirm-cancel">Cancelar</button>' +
+            '    <button type="button" class="btn btn-danger js-confirm-ok">Excluir</button>' +
+            '  </div>' +
+            '</div>';
+
+        document.body.appendChild(overlay);
+
+        const text = overlay.querySelector('.confirm-text');
+        const cancelBtn = overlay.querySelector('.js-confirm-cancel');
+        const okBtn = overlay.querySelector('.js-confirm-ok');
+
+        function closeModal(result) {
+            overlay.classList.add('is-hidden');
+            document.body.classList.remove('modal-open');
+            if (confirmResolver) {
+                confirmResolver(result);
+                confirmResolver = null;
+            }
+        }
+
+        overlay.addEventListener('click', function (event) {
+            if (event.target === overlay) {
+                closeModal(false);
+            }
+        });
+
+        cancelBtn.addEventListener('click', function () {
+            closeModal(false);
+        });
+
+        okBtn.addEventListener('click', function () {
+            closeModal(true);
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (!overlay.classList.contains('is-hidden') && event.key === 'Escape') {
+                closeModal(false);
+            }
+        });
+
+        confirmModal = {
+            overlay,
+            text,
+            okBtn
+        };
+
+        return confirmModal;
+    }
+
+    function openConfirmModal(message, onResolve) {
+        const modal = ensureConfirmModal();
+        modal.text.textContent = message || 'Tem certeza que deseja realizar essa ação?';
+        confirmResolver = onResolve;
+        modal.overlay.classList.remove('is-hidden');
+        document.body.classList.add('modal-open');
+        modal.okBtn.focus();
+    }
+
     function capitalizeWords(value) {
         return (value || '').replace(/(^|\s)([A-Za-zÀ-ÖØ-öø-ÿ])/g, function (_, space, letter) {
             return space + letter.toUpperCase();
@@ -130,10 +203,27 @@
             return;
         }
 
-        const message = form.getAttribute('data-confirm-message') || 'Tem certeza?';
-        if (!window.confirm(message)) {
-            event.preventDefault();
+        if (form.dataset.confirmed === 'true') {
+            delete form.dataset.confirmed;
+            return;
         }
+
+        event.preventDefault();
+
+        const message = form.getAttribute('data-confirm-message') || 'Tem certeza que deseja realizar essa ação?';
+        openConfirmModal(message, function (accepted) {
+            if (!accepted) {
+                return;
+            }
+
+            form.dataset.confirmed = 'true';
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+                return;
+            }
+
+            form.submit();
+        });
     });
 
     window.VetValidation = {
