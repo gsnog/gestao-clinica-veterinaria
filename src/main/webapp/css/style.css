@@ -39,7 +39,6 @@ body {
     color: var(--text);
     display: flex;
     min-height: 100vh;
-    min-width: 780px;
 }
 
 a {
@@ -212,6 +211,17 @@ a {
 
 .btn-outline:hover {
     background: var(--rose-light);
+}
+
+.btn-filter {
+    background: var(--lavender-bg);
+    border: 1.5px solid var(--lavender-light);
+    color: var(--lavender);
+}
+
+.btn-filter:hover {
+    background: var(--lavender-light);
+    color: var(--white);
 }
 
 .btn-edit {
@@ -390,6 +400,7 @@ tbody tr:hover td {
 
 .pet-name {
     font-weight: 500;
+    text-transform: capitalize;
 }
 
 .pet-breed {
@@ -460,7 +471,6 @@ tbody tr:hover td {
     box-shadow: var(--shadow-sm);
     display: grid;
     grid-template-columns: 260px 1fr;
-    overflow: hidden;
     max-width: 820px;
 }
 
@@ -472,6 +482,8 @@ tbody tr:hover td {
     align-items: center;
     justify-content: center;
     text-align: center;
+    border-radius: var(--radius) 0 0 var(--radius);
+    overflow: hidden;
 }
 
 .form-sidebar-icon {
@@ -494,6 +506,8 @@ tbody tr:hover td {
 
 .form-body {
     padding: 36px 40px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    overflow: visible;
 }
 
 .form-title {
@@ -533,7 +547,7 @@ tbody tr:hover td {
     text-transform: uppercase;
 }
 
-.form-group input,
+.form-group input:not([type="hidden"]),
 .form-group select,
 .form-group textarea {
     padding: 11px 15px;
@@ -547,7 +561,7 @@ tbody tr:hover td {
     transition: border-color .2s ease, box-shadow .2s ease;
 }
 
-.form-group input:focus,
+.form-group input:not([type="hidden"]):focus,
 .form-group select:focus,
 .form-group textarea:focus {
     border-color: var(--lavender);
@@ -563,6 +577,51 @@ tbody tr:hover td {
     resize: vertical;
     min-height: 80px;
 }
+
+.inline-form {
+    display: inline;
+}
+
+.input-disabled {
+    background: var(--cream);
+    cursor: not-allowed;
+}
+
+.is-hidden {
+    display: none;
+}
+
+.mt-8 {
+    margin-top: 8px;
+}
+
+.mt-12 {
+    margin-top: 12px;
+}
+
+.btn-disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.auth-inline-check {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-inline-check input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.auth-inline-check label {
+    margin: 0;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.cap { text-transform: capitalize; }
 
 .toggle-group {
     display: flex;
@@ -609,6 +668,8 @@ tbody tr:hover td {
     margin-bottom: 20px;
     flex-wrap: wrap;
     align-items: center;
+    position: relative;
+    z-index: 20;
 }
 
 .filter-group {
@@ -618,14 +679,23 @@ tbody tr:hover td {
     background: var(--white);
     border: 1.5px solid var(--lavender-light);
     border-radius: 50px;
-    padding: 6px 16px;
+    padding: 8px 12px;
     width: min(100%, 680px);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: visible;
+}
+
+.filter-group:focus-within {
+    border-color: var(--lavender);
+    box-shadow: 0 0 0 4px rgba(155, 142, 168, .12);
 }
 
 .filter-group label {
     font-size: .78rem;
     color: var(--text-muted);
     white-space: nowrap;
+    margin-left: 6px;
 }
 
 .filter-group input {
@@ -645,6 +715,11 @@ tbody tr:hover td {
 
 .filter-group input[type="date"] {
     min-width: 155px;
+}
+
+.filter-feedback {
+    font-size: .8rem;
+    color: #C0504F;
 }
 
 @keyframes fadeUp {
