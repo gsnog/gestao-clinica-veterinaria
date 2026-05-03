@@ -14,6 +14,6 @@ public class AcessoNegadoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/views/acesso-negado.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/acessonegado.jsp").forward(request, response);
     }
 }

@@ -1,5 +1,7 @@
 package com.uff.gestaoclinicaveterinaria.controller;
 
+import java.io.IOException;
+
 import com.uff.gestaoclinicaveterinaria.dao.UsuarioDAO;
 import com.uff.gestaoclinicaveterinaria.dao.UsuarioDAOImpl;
 import com.uff.gestaoclinicaveterinaria.model.Usuario;
@@ -14,8 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import java.io.IOException;
-
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
@@ -24,6 +24,9 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if ("1".equals(request.getParameter("recuperada"))) {
+            request.setAttribute("sucesso", "Senha redefinida com sucesso. Faça seu login.");
+        }
         request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
     }
 
@@ -68,6 +71,7 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("usuarioRole", usuario.getRole());
         session.setMaxInactiveInterval(30 * 60);
 
-        response.sendRedirect(request.getContextPath() + "/index.jsp");
+        String destino = "VETERINARIO".equals(usuario.getRole()) ? "/dashboard" : "/pets";
+        response.sendRedirect(request.getContextPath() + destino);
     }
 }

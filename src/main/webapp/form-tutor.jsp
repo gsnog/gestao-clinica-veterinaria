@@ -3,11 +3,15 @@
 <%@ include file="components/sidebar.jsp" %>
 <%@ page import="com.uff.gestaoclinicaveterinaria.model.Tutor" %>
 
-<main class="main">
-
 <%
 Tutor tutor = (Tutor) request.getAttribute("tutor");
+if (tutor == null) {
+    response.sendRedirect(request.getContextPath() + "/tutores");
+    return;
+}
 %>
+
+<main class="main">
 
 <div class="form-card">
 
@@ -20,10 +24,12 @@ Tutor tutor = (Tutor) request.getAttribute("tutor");
     <div class="form-body">
 
         <div class="form-title">
-            <%= tutor != null ? "Editar Tutor" : "Novo Tutor" %>
+            Editar Tutor
         </div>
 
         <form action="tutores" method="post">
+
+        <%@ include file="components/csrf_token.jsp" %>
 
         <% if (tutor != null) { %>
             <input type="hidden" name="id" value="<%= tutor.getId() %>"/>

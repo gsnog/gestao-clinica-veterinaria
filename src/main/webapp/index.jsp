@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.uff.gestaoclinicaveterinaria.dto.DashboardDTO" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
 
@@ -12,38 +13,39 @@
     </div>
 
     <%
-        Integer totalPets      = (Integer) request.getAttribute("totalPets");
-        Integer totalTutores   = (Integer) request.getAttribute("totalTutores");
-        Integer totalVets      = (Integer) request.getAttribute("totalVets");
-        Integer totalConsultas = (Integer) request.getAttribute("totalConsultas");
+        DashboardDTO estatisticas = (DashboardDTO) request.getAttribute("estatisticas");
+        long totalPets = estatisticas != null ? estatisticas.getTotalPets() : 0;
+        long totalTutores = estatisticas != null ? estatisticas.getTotalTutores() : 0;
+        long totalVeterinarios = estatisticas != null ? estatisticas.getTotalVeterinarios() : 0;
+        long totalConsultas = estatisticas != null ? estatisticas.getTotalConsultas() : 0;
     %>
 
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon rose">🐶</div>
             <div>
-                <div class="stat-number"><%= totalPets      != null ? totalPets      : 0 %></div>
+                <div class="stat-number"><%= totalPets %></div>
                 <div class="stat-label">Pets</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon lav">👤</div>
             <div>
-                <div class="stat-number"><%= totalTutores   != null ? totalTutores   : 0 %></div>
+                <div class="stat-number"><%= totalTutores %></div>
                 <div class="stat-label">Tutores</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon sand">🩺</div>
             <div>
-                <div class="stat-number"><%= totalVets      != null ? totalVets      : 0 %></div>
+                <div class="stat-number"><%= totalVeterinarios %></div>
                 <div class="stat-label">Veterinários</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon mint">📋</div>
             <div>
-                <div class="stat-number"><%= totalConsultas != null ? totalConsultas : 0 %></div>
+                <div class="stat-number"><%= totalConsultas %></div>
                 <div class="stat-label">Consultas</div>
             </div>
         </div>
@@ -55,9 +57,12 @@
         </div>
         <div class="quick-access">
             <a class="btn btn-primary" href="${pageContext.request.contextPath}/pets">Pets</a>
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/consultas">Consultas</a>
+            <% if (isVeterinario) { %>
             <a class="btn btn-primary" href="${pageContext.request.contextPath}/tutores">Tutores</a>
             <a class="btn btn-primary" href="${pageContext.request.contextPath}/veterinarios">Veterinários</a>
-            <a class="btn btn-primary" href="${pageContext.request.contextPath}/consultas">Consultas</a>
+            <% } %>
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/perfil">Perfil</a>
         </div>
     </div>
 
