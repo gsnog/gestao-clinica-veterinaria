@@ -97,5 +97,6 @@
     </div>
 
 </main>
+<script src="${pageContext.request.contextPath}/scripts/lightbox.js" defer></script>
 </body>
 </html>

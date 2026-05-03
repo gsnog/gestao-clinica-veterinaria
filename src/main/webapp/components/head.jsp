@@ -13,7 +13,5 @@
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css"/>
     <script src="${pageContext.request.contextPath}/scripts/validation.js" defer></script>
-    <script src="${pageContext.request.contextPath}/scripts/lightbox.js" defer></script>
-    <script src="${pageContext.request.contextPath}/scripts/consulta.js" defer></script>
 </head>
 <body>
