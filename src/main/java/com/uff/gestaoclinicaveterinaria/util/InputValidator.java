@@ -10,6 +10,25 @@ public class InputValidator {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     }
 
+    public static boolean nomeCompletoValido(String nome) {
+        if (nome == null) {
+            return false;
+        }
+
+        String[] partes = nome.trim().split("\\s+");
+        if (partes.length < 2) {
+            return false;
+        }
+
+        for (String parte : partes) {
+            if (parte.length() < 2) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static boolean telefoneValido(String telefone) {
         return telefone != null && telefone.matches("\\(\\d{2}\\)\\s\\d{4,5}-\\d{4}");
     }

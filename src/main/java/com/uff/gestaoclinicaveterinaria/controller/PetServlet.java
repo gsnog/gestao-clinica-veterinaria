@@ -2,8 +2,12 @@ package com.uff.gestaoclinicaveterinaria.controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import com.uff.gestaoclinicaveterinaria.dao.PetDAO;
 import com.uff.gestaoclinicaveterinaria.dao.PetDAOImpl;
@@ -11,6 +15,7 @@ import com.uff.gestaoclinicaveterinaria.dao.TutorDAO;
 import com.uff.gestaoclinicaveterinaria.dao.TutorDAOImpl;
 import com.uff.gestaoclinicaveterinaria.model.Pet;
 import com.uff.gestaoclinicaveterinaria.model.Tutor;
+import com.uff.gestaoclinicaveterinaria.util.SearchFilterUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -24,6 +29,49 @@ public class PetServlet extends HttpServlet {
 
     private PetDAO petDao = new PetDAOImpl();
     private TutorDAO tutorDAO = new TutorDAOImpl();
+    private static final DateTimeFormatter DATA_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("pt-BR"));
+
+    private List<Pet> filtrarPets(List<Pet> pets, String busca) {
+        String buscaNormalizada = SearchFilterUtil.normalize(busca);
+        if (buscaNormalizada.isEmpty()) {
+            return pets;
+        }
+
+        List<Pet> filtrados = new ArrayList<>();
+        for (Pet pet : pets) {
+            if (SearchFilterUtil.startsWithNormalized(pet.getNome(), buscaNormalizada)
+                    || SearchFilterUtil.startsWithNormalized(String.valueOf(pet.getId()), buscaNormalizada)) {
+                filtrados.add(pet);
+            }
+        }
+        return filtrados;
+    }
+
+    private Map<Long, String> montarDatasNascimentoFormatadas(List<Pet> lista) {
+        Map<Long, String> datasFormatadas = new HashMap<>();
+        if (lista == null) {
+            return datasFormatadas;
+        }
+
+        for (Pet pet : lista) {
+            if (pet == null || pet.getId() == null || pet.getDataNascimento() == null) {
+                continue;
+            }
+            String data = pet.getDataNascimento().format(DATA_FMT).replace(".", "");
+            datasFormatadas.put(pet.getId(), data);
+        }
+
+        return datasFormatadas;
+    }
+
+    private void encaminharListaPets(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     List<Pet> lista) throws ServletException, IOException {
+        request.setAttribute("listaDePets", lista);
+        request.setAttribute("buscaParam", request.getParameter("busca") != null ? request.getParameter("busca") : "");
+        request.setAttribute("datasNascimentoFormatadas", montarDatasNascimentoFormatadas(lista));
+        request.getRequestDispatcher("/lista-pets.jsp").forward(request, response);
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -62,6 +110,7 @@ public class PetServlet extends HttpServlet {
 
             request.setAttribute("listaTutores", tutores);
             request.setAttribute("pet", pet);
+            request.setAttribute("dataMaxHoje", LocalDate.now().toString());
             request.getRequestDispatcher("/form-pet.jsp").forward(request, response);
 
         } else if ("novo".equals(acao)) {
@@ -74,6 +123,7 @@ public class PetServlet extends HttpServlet {
             }
 
             request.setAttribute("listaTutores", tutores);
+            request.setAttribute("dataMaxHoje", LocalDate.now().toString());
             request.getRequestDispatcher("/form-pet.jsp").forward(request, response);
 
         } else {
@@ -84,8 +134,8 @@ public class PetServlet extends HttpServlet {
                 lista = petDao.listarTodos();
             }
 
-            request.setAttribute("listaDePets", lista);
-            request.getRequestDispatcher("/lista-pets.jsp").forward(request, response);
+            lista = filtrarPets(lista, request.getParameter("busca"));
+            encaminharListaPets(request, response, lista);
         }
     }
 

@@ -1,12 +1,16 @@
 package com.uff.gestaoclinicaveterinaria.dao;
 
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.uff.gestaoclinicaveterinaria.model.Pet;
 import com.uff.gestaoclinicaveterinaria.model.Tutor;
 import com.uff.gestaoclinicaveterinaria.util.ConnectionFactory;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PetDAOImpl implements PetDAO {
 
@@ -28,7 +32,10 @@ public class PetDAOImpl implements PetDAO {
     @Override
     public List<Pet> listarTodos() {
         List<Pet> pets = new ArrayList<>();
-        String sql = "SELECT * FROM pet";
+        String sql = "SELECT p.id, p.nome, p.raca, p.data_nascimento, p.tutor_id, u.nome AS tutor_nome "
+                + "FROM pet p "
+                + "LEFT JOIN usuario u ON u.id = p.tutor_id "
+                + "ORDER BY p.nome";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -43,6 +50,7 @@ public class PetDAOImpl implements PetDAO {
 
                 Tutor tutor = new Tutor();
                 tutor.setId(rs.getLong("tutor_id"));
+                tutor.setNome(rs.getString("tutor_nome"));
                 pet.setTutor(tutor);
 
                 pets.add(pet);
