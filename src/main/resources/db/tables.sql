@@ -36,6 +36,7 @@ CREATE TABLE consulta (
     id BIGSERIAL PRIMARY KEY, -- PK, ID Auto-incremental
     data_consulta TIMESTAMP NOT NULL, -- Data e hora do atendimento
     motivo VARCHAR(255) NOT NULL,
+    diagnostico TEXT,
     pet_id BIGINT NOT NULL, -- FK para Pet(id)
     veterinario_id BIGINT NOT NULL, -- FK para Veterinario(id)
     FOREIGN KEY (pet_id) REFERENCES pet(id) 
