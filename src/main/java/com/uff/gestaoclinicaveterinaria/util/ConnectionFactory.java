@@ -22,7 +22,7 @@ public class ConnectionFactory {
     private static final String PASSWORD =
             System.getenv("DB_PASSWORD") != null
                     ? System.getenv("DB_PASSWORD")
-                    : "ElixirSuperPoderosos987";
+                    : "sua_senha_aqui";
 
     private static final HikariDataSource dataSource;
 
