@@ -107,6 +107,12 @@ public class RegistroServlet extends HttpServlet {
 
         preencherValoresFormulario(request, nome, email, role, telefone, crmv, especialidade);
 
+        if (!InputValidator.nomeCompletoValido(nome)) {
+            request.setAttribute("erro", "Informe nome e sobrenome (mínimo 2 palavras).");
+            request.getRequestDispatcher("/WEB-INF/views/registro.jsp").forward(request, response);
+            return;
+        }
+
         if ("TUTOR".equals(role)
             && (telefone == null || !telefone.matches("\\(\\d{2}\\)\\s\\d{4,5}-\\d{4}"))) {
             request.setAttribute("erro", "Telefone inválido. Use o formato (DDD) 99999-9999.");

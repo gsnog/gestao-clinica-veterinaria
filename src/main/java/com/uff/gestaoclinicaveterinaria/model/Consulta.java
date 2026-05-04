@@ -6,6 +6,7 @@ public class Consulta {
     private Long id;
     private LocalDateTime dataConsulta;
     private String motivo;
+    private String diagnostico;
     private Pet pet;
     private Veterinario veterinario;
 
@@ -40,6 +41,14 @@ public class Consulta {
 
     public void setMotivo(String motivo) {
         this.motivo = motivo;
+    }
+
+    public String getDiagnostico() {
+        return diagnostico;
+    }
+
+    public void setDiagnostico(String diagnostico) {
+        this.diagnostico = diagnostico;
     }
 
     public Pet getPet() {
