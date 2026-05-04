@@ -4,6 +4,7 @@ SELECT
     c.id AS consulta_id, 
     c.data_consulta, 
     c.motivo,
+    c.diagnostico,
     p.id AS pet_id, 
     p.nome AS pet_nome, 
     p.raca AS pet_raca,
