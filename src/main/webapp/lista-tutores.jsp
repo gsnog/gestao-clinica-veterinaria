@@ -1,14 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
-<%@ page import="java.util.List" %>
-<%@ page import="com.uff.gestaoclinicaveterinaria.model.Tutor" %>
-<%
-boolean isVetFiltro = "VETERINARIO".equals(session.getAttribute("usuarioRole"));
-String buscaParam = request.getParameter("busca") != null ? request.getParameter("busca") : "";
-String buscaTutor = buscaParam.trim().toLowerCase();
-boolean filtroTutorAtivo = !buscaTutor.isEmpty();
-%>
+
+<c:set var="isVetFiltro" value="${sessionScope.usuarioRole eq 'VETERINARIO'}" />
 
 <main class="main">
 
@@ -19,16 +14,16 @@ boolean filtroTutorAtivo = !buscaTutor.isEmpty();
     </div>
 </div>
 
-<% if (isVetFiltro) { %>
+<c:if test="${isVetFiltro}">
 <div class="filter-bar">
-    <form action="tutores" method="get" class="filter-group">
-        <label>Busca</label>
-        <input type="text" name="busca" placeholder="Nome, telefone ou ID" value="<%= buscaParam %>"/>
-        <button type="submit" class="btn btn-outline">Filtrar</button>
+    <form action="tutores" method="get" class="filter-group js-search-filter-form">
+        <label for="tutoresBuscaInput">Busca</label>
+        <input type="text" name="busca" id="tutoresBuscaInput" class="js-search-filter-input" placeholder="Nome, telefone ou ID" value="${buscaParam}" autocomplete="off"/>
+        <button type="submit" class="btn btn-filter">Filtrar</button>
         <a class="btn btn-primary" href="${pageContext.request.contextPath}/tutores">Limpar filtros</a>
     </form>
 </div>
-<% } %>
+</c:if>
 
 <div class="card">
 <table>
@@ -42,41 +37,26 @@ boolean filtroTutorAtivo = !buscaTutor.isEmpty();
 </thead>
 
 <tbody>
-<%
-List<Tutor> lista = (List<Tutor>) request.getAttribute("listaTutores");
-
-if (lista != null) {
-    for (Tutor t : lista) {
-        boolean tutorPassaFiltro = !filtroTutorAtivo
-            || (t.getNome() != null && t.getNome().toLowerCase().contains(buscaTutor))
-            || (t.getTelefone() != null && t.getTelefone().toLowerCase().contains(buscaTutor))
-            || String.valueOf(t.getId()).contains(buscaTutor);
-        if (!tutorPassaFiltro) {
-            continue;
-        }
-%>
+<c:forEach var="tutor" items="${listaTutores}">
 <tr>
-    <td><%= t.getNome() %></td>
-    <td><%= t.getTelefone() %></td>
-     <td class="table-id">#<%= t.getId() %></td>
+    <td class="cap">${tutor.nome}</td>
+    <td>${tutor.telefone}</td>
+     <td class="table-id">#${tutor.id}</td>
 
     <td class="actions">
         <a class="btn btn-edit"
-           href="tutores?acao=editar&id=<%= t.getId() %>">Editar</a>
+           href="tutores?acao=editar&id=${tutor.id}">Editar</a>
 
-        <form method="post" action="tutores" style="display:inline"
-              onsubmit="return confirm('Tem certeza?')">
+          <form method="post" action="tutores" class="inline-form js-confirm-submit"
+              data-confirm-message="Tem certeza?">
             <%@ include file="components/csrf_token.jsp" %>
             <input type="hidden" name="acao" value="deletar"/>
-            <input type="hidden" name="id" value="<%= t.getId() %>"/>
+            <input type="hidden" name="id" value="${tutor.id}"/>
             <button type="submit" class="btn btn-danger">Excluir</button>
         </form>
     </td>
 </tr>
-<%
-    }
-}
-%>
+</c:forEach>
 </tbody>
 </table>
 </div>

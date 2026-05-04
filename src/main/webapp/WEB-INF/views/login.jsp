@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,22 +37,21 @@
                         <input type="password" id="senha" name="senha" required autocomplete="current-password">
                     </div>
 
-                    <div class="form-group" style="flex-direction:row;align-items:center;gap:8px;">
-                        <input type="checkbox" id="lembrar" name="lembrar" value="true"
-                               style="width:auto;margin:0;">
-                        <label for="lembrar" style="margin:0;font-weight:400;cursor:pointer;">Lembrar meu e-mail</label>
+                    <div class="form-group auth-inline-check">
+                        <input type="checkbox" id="lembrar" name="lembrar" value="true">
+                        <label for="lembrar">Lembrar meu e-mail</label>
                     </div>
 
                     <button type="submit" class="btn btn-submit auth-submit">Entrar</button>
                 </form>
 
-                <% if (request.getAttribute("erro") != null) { %>
+                <c:if test="${not empty erro}">
                 <p class="auth-message auth-error">${erro}</p>
-                <% } %>
+                </c:if>
 
-                <% if (request.getAttribute("sucesso") != null) { %>
+                <c:if test="${not empty sucesso}">
                 <p class="auth-message auth-success">${sucesso}</p>
-                <% } %>
+                </c:if>
 
                 <p class="auth-switch">
                     Não tem conta?

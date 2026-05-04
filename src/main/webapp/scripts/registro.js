@@ -3,6 +3,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.querySelector('.auth-form');
+
         if (!form || typeof VetValidation === 'undefined') return;
 
         const roleSelect = document.getElementById('role');
@@ -25,33 +26,8 @@
             especialidadeInput.required = isVet;
         }
 
-        if (telefoneInput) {
-            telefoneInput.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 11) value = value.slice(0, 11);
-                if (value.length <= 10) {
-                    value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-                    value = value.replace(/(\d{4})(\d)/, '$1-$2');
-                } else {
-                    value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-                    value = value.replace(/(\d{5})(\d)/, '$1-$2');
-                }
-                e.target.value = value;
-            });
-        }
-
-        if (crmvInput) {
-            crmvInput.addEventListener('input', function (e) {
-                let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                value = value.replace(/^CRMV/, '');
-                let resultado = 'CRMV-';
-                const letras = value.replace(/[^A-Z]/g, '').substring(0, 2);
-                const numeros = value.replace(/[^0-9]/g, '').substring(0, 5);
-                resultado += letras;
-                if (letras.length === 2) resultado += ' ' + numeros;
-                e.target.value = resultado;
-            });
-        }
+        VetValidation.bindTelefoneFormatter(telefoneInput);
+        VetValidation.bindCrmvFormatter(crmvInput);
 
         roleSelect.addEventListener('change', atualizarCamposPorRole);
         atualizarCamposPorRole();
@@ -62,6 +38,17 @@
             v.clearAllErrors(this);
             let ok = true;
 
+            function isValidFullName(value) {
+                const parts = (value || '').trim().split(/\s+/).filter(Boolean);
+                if (parts.length < 2) {
+                    return false;
+                }
+
+                return parts.every(function (part) {
+                    return part.length >= 2;
+                });
+            }
+
             const nome = document.getElementById('nome');
             const email = document.getElementById('email');
             const senha = document.getElementById('senha');
@@ -70,8 +57,8 @@
             if (!nome.value.trim()) {
                 v.showError(nome, 'Informe seu nome.');
                 ok = false;
-            } else if (nome.value.trim().length < 2) {
-                v.showError(nome, 'Nome deve ter pelo menos 2 caracteres.');
+            } else if (!isValidFullName(nome.value)) {
+                v.showError(nome, 'Informe nome e sobrenome (mínimo 2 palavras).');
                 ok = false;
             }
 
