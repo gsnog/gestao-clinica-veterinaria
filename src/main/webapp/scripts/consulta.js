@@ -25,8 +25,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const match = options.find(function (option) {
             return normalizeText(option.value) === inputValue;
         });
-
-        hidden.value = match ? (match.getAttribute('data-id') || '') : '';
+        if (match) {
+            hidden.value = match.getAttribute('data-id') || '';
+        } else if (input.value !== '') {
+            hidden.value = '';
+        }
     }
 
     document.querySelectorAll('.js-combobox-input').forEach(function (input) {
@@ -43,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function () {
             syncComboboxValue(input);
         });
 
-        syncComboboxValue(input);
     });
 
 });
