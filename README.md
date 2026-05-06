@@ -316,5 +316,5 @@ Projeto educacional - UFF 2026
 - **Arben** (Banco de Dados)
 - **Giovana** (Backend)
 - **Sara** (Backend, Segurança)
-
+- **Enzo** (QA)
 ---
