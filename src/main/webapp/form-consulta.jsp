@@ -11,17 +11,15 @@
        ? fn:substring(consulta.dataConsulta, 0, 16) 
        : ''}" />
 
-<c:set var="petLabel"
-       value="${not empty consulta and not empty consulta.pet 
-       ? '#' + consulta.pet.id + ' - ' + consulta.pet.nome + 
-         (not empty consulta.pet.tutor ? ' | Tutor: ' + consulta.pet.tutor.nome : '') 
-       : ''}" />
+<c:set var="petLabel" value="" />
+<c:if test="${not empty consulta and not empty consulta.pet}">
+    <c:set var="petLabel" value="#${consulta.pet.id} - ${consulta.pet.nome}${not empty consulta.pet.tutor ? ' | Tutor: ' : ''}${not empty consulta.pet.tutor ? consulta.pet.tutor.nome : ''}" />
+</c:if>
 
-<c:set var="vetLabel"
-       value="${not empty consulta and not empty consulta.veterinario 
-       ? '#' + consulta.veterinario.id + ' - ' + consulta.veterinario.nome + 
-         (not empty consulta.veterinario.crmv ? ' | ' + consulta.veterinario.crmv : '') 
-       : ''}" />
+<c:set var="vetLabel" value="" />
+<c:if test="${not empty consulta and not empty consulta.veterinario}">
+    <c:set var="vetLabel" value="#${consulta.veterinario.id} - ${consulta.veterinario.nome}${not empty consulta.veterinario.crmv ? ' | ' : ''}${not empty consulta.veterinario.crmv ? consulta.veterinario.crmv : ''}" />
+</c:if>
 
 <div class="form-card">
 
