@@ -26,15 +26,15 @@
 <form action="consultas" method="get" class="filter-group js-search-filter-form" id="consultaFiltroForm">
     <input type="hidden" name="acao" value="filtrar"/>
     <label for="consultaBuscaInput">Busca</label>
-    <input type="text" name="busca" id="consultaBuscaInput" class="js-search-filter-input" placeholder="Nome do pet ou veterinário" value="${buscaParam}" autocomplete="off"/>
+    <input type="text" name="busca" id="consultaBuscaInput" class="js-search-filter-input" placeholder="Nome do pet ou veterinário" value="<c:out value='${buscaParam}'/>" autocomplete="off"/>
     <label>Data</label>
-    <input type="date" name="dataConsulta" id="filtroDataConsulta" value="${dataFiltroParam}"/>
+    <input type="date" name="dataConsulta" id="filtroDataConsulta" value="<c:out value='${dataFiltroParam}'/>"/>
     <button type="submit" class="btn btn-filter">Filtrar</button>
     <a class="btn btn-primary" href="${pageContext.request.contextPath}/consultas">Limpar filtros</a>
 </form>
 
 <c:if test="${not empty erroFiltroData}">
-<span class="filter-feedback">${erroFiltroData}</span>
+<span class="filter-feedback"><c:out value="${erroFiltroData}"/></span>
 </c:if>
 
 </div>
@@ -56,19 +56,19 @@
 <tbody>
 <c:forEach var="consultaItem" items="${listaDeConsultas}">
 <tr>
-    <td>${datasConsultaFormatadas[consultaItem.id]}</td>
-    <td>${consultaItem.motivo}</td>
+    <td><c:out value="${datasConsultaFormatadas[consultaItem.id]}"/></td>
+    <td><c:out value="${consultaItem.motivo}"/></td>
     <td>
         <c:choose>
             <c:when test="${empty consultaItem.diagnostico}">-</c:when>
-            <c:otherwise>${consultaItem.diagnostico}</c:otherwise>
+            <c:otherwise><c:out value="${consultaItem.diagnostico}"/></c:otherwise>
         </c:choose>
     </td>
     <td class="cap">
-        <c:if test="${not empty consultaItem.pet}">${consultaItem.pet.nome}</c:if>
+        <c:if test="${not empty consultaItem.pet}"><c:out value="${consultaItem.pet.nome}"/></c:if>
     </td>
     <td class="cap">
-        <c:if test="${not empty consultaItem.veterinario}">${consultaItem.veterinario.nome}</c:if>
+        <c:if test="${not empty consultaItem.veterinario}"><c:out value="${consultaItem.veterinario.nome}"/></c:if>
     </td>
 
     <c:if test="${isVetConsulta}">

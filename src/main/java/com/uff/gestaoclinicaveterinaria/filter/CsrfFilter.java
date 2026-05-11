@@ -30,6 +30,11 @@ public class CsrfFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            request.setAttribute("csrfToken", CsrfUtil.obterToken(session));
+        }
 
         if ("POST".equalsIgnoreCase(request.getMethod())) {
             String contextPath = request.getContextPath();
@@ -39,7 +44,6 @@ public class CsrfFilter implements Filter {
                     : uri;
 
             if (!ROTAS_PUBLICAS.contains(path)) {
-                HttpSession session = request.getSession(false);
                 // Se não há sessão, AuthFilter já redirecionará; deixar passar.
                 if (session != null) {
                     String tokenRecebido = request.getParameter("_csrf");
