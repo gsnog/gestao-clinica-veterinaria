@@ -18,7 +18,7 @@
 <div class="filter-bar">
     <form action="veterinarios" method="get" class="filter-group js-search-filter-form">
         <label for="vetsBuscaInput">Busca</label>
-        <input type="text" name="busca" id="vetsBuscaInput" class="js-search-filter-input" placeholder="Nome, CRMV, especialidade ou ID" value="${buscaParam}" autocomplete="off"/>
+        <input type="text" name="busca" id="vetsBuscaInput" class="js-search-filter-input" placeholder="Nome, CRMV, especialidade ou ID" value="<c:out value='${buscaParam}'/>" autocomplete="off"/>
         <button type="submit" class="btn btn-filter">Filtrar</button>
         <a class="btn btn-primary" href="${pageContext.request.contextPath}/veterinarios">Limpar filtros</a>
     </form>
@@ -40,10 +40,10 @@
 <tbody>
 <c:if test="${not empty vetLogado}">
 <tr>
-    <td class="cap">${vetLogado.nome}</td>
-    <td>${vetLogado.crmv}</td>
-    <td>${vetLogado.especialidade}</td>
-    <td class="table-id">#${vetLogado.id}</td>
+    <td class="cap"><c:out value="${vetLogado.nome}"/></td>
+    <td><c:out value="${vetLogado.crmv}"/></td>
+    <td><c:out value="${vetLogado.especialidade}"/></td>
+    <td class="table-id">#<c:out value="${vetLogado.id}"/></td>
 
     <td class="actions">
         <a class="btn btn-edit"
@@ -62,10 +62,10 @@
 
 <c:forEach var="vet" items="${listaDeVeterinarios}">
 <tr>
-    <td class="cap">${vet.nome}</td>
-    <td>${vet.crmv}</td>
-    <td>${vet.especialidade}</td>
-     <td class="table-id">#${vet.id}</td>
+    <td class="cap"><c:out value="${vet.nome}"/></td>
+    <td><c:out value="${vet.crmv}"/></td>
+    <td><c:out value="${vet.especialidade}"/></td>
+     <td class="table-id">#<c:out value="${vet.id}"/></td>
 
     <td>
         <div class="actions" title="O veterinário só pode alterar ou excluir o próprio perfil.">
