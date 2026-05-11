@@ -20,6 +20,21 @@ public class    TutorServlet extends HttpServlet {
 
     private TutorDAO tutorDAO = new TutorDAOImpl();
 
+    private Long parseLongPositivo(String valor) {
+        try {
+            long numero = Long.parseLong(valor);
+            return numero > 0 ? numero : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void encaminharErro(HttpServletRequest request, HttpServletResponse response, String mensagem)
+            throws ServletException, IOException {
+        request.setAttribute("erro", mensagem);
+        request.getRequestDispatcher("/WEB-INF/views/acessonegado.jsp").forward(request, response);
+    }
+
     private List<Tutor> filtrarTutores(List<Tutor> tutores, String busca) {
         String buscaNormalizada = SearchFilterUtil.normalize(busca);
         if (buscaNormalizada.isEmpty()) {
@@ -50,7 +65,11 @@ public class    TutorServlet extends HttpServlet {
         String acao = request.getParameter("acao");
 
         if(acao != null && acao.equals("editar")){
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                encaminharErro(request, response, "Requisição inválida.");
+                return;
+            }
             Tutor tutorEditado = tutorDAO.buscarPorId(id);
             if (tutorEditado == null) {
                 response.sendRedirect(request.getContextPath() + "/tutores");
@@ -70,7 +89,11 @@ public class    TutorServlet extends HttpServlet {
         String acao = request.getParameter("acao");
 
         if ("deletar".equals(acao)) {
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                encaminharErro(request, response, "Requisição inválida.");
+                return;
+            }
             tutorDAO.deletar(id);
             response.sendRedirect(request.getContextPath() + "/tutores");
             return;
@@ -79,8 +102,17 @@ public class    TutorServlet extends HttpServlet {
         String nome = request.getParameter("nomeTutor");
         String telefone = request.getParameter("telefoneTutor");
 
+        if (nome == null || nome.isBlank() || telefone == null || telefone.isBlank()) {
+            encaminharErro(request, response, "Dados do tutor inválidos.");
+            return;
+        }
+
         if(acao != null && acao.equals("editar")){
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                encaminharErro(request, response, "Requisição inválida.");
+                return;
+            }
             Tutor tutorAtualizado = new Tutor();
             tutorAtualizado.setId(id);
             tutorAtualizado.setNome(nome);
