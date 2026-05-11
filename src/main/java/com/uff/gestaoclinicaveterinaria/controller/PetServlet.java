@@ -31,6 +31,29 @@ public class PetServlet extends HttpServlet {
     private TutorDAO tutorDAO = new TutorDAOImpl();
     private static final DateTimeFormatter DATA_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("pt-BR"));
 
+    private Long parseLongPositivo(String valor) {
+        try {
+            long numero = Long.parseLong(valor);
+            return numero > 0 ? numero : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private LocalDate parseDataSegura(String valor) {
+        try {
+            return LocalDate.parse(valor);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void encaminharErro(HttpServletRequest request, HttpServletResponse response, String mensagem)
+            throws ServletException, IOException {
+        request.setAttribute("erro", mensagem);
+        request.getRequestDispatcher("/WEB-INF/views/acessonegado.jsp").forward(request, response);
+    }
+
     private List<Pet> filtrarPets(List<Pet> pets, String busca) {
         String buscaNormalizada = SearchFilterUtil.normalize(busca);
         if (buscaNormalizada.isEmpty()) {
@@ -88,7 +111,11 @@ public class PetServlet extends HttpServlet {
         String acao = request.getParameter("acao");
 
         if ("editar".equals(acao)) {
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                encaminharErro(request, response, "Requisição inválida.");
+                return;
+            }
             Pet pet = petDao.buscarPorId(id);
 
             if (pet == null || pet.getTutor() == null) {
@@ -154,7 +181,11 @@ public class PetServlet extends HttpServlet {
         String acao = request.getParameter("acao");
 
         if ("deletar".equals(acao)) {
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                encaminharErro(request, response, "Requisição inválida.");
+                return;
+            }
             Pet petParaDeletar = petDao.buscarPorId(id);
             if (petParaDeletar == null || petParaDeletar.getTutor() == null) {
                 response.sendRedirect(request.getContextPath() + "/pets");
@@ -171,20 +202,33 @@ public class PetServlet extends HttpServlet {
 
         String nome = request.getParameter("nomePet");
         String raca = request.getParameter("racaPet");
-        LocalDate dataNascimento = LocalDate.parse(request.getParameter("dataNascimentoPet"));
+        LocalDate dataNascimento = parseDataSegura(request.getParameter("dataNascimentoPet"));
+
+        if (nome == null || nome.isBlank() || raca == null || raca.isBlank() || dataNascimento == null) {
+            encaminharErro(request, response, "Dados do pet inválidos.");
+            return;
+        }
 
         Long tutorId;
         if ("TUTOR".equals(role)) {
             tutorId = idLogado;
         } else {
-            tutorId = Long.parseLong(request.getParameter("tutorId"));
+            tutorId = parseLongPositivo(request.getParameter("tutorId"));
+            if (tutorId == null) {
+                encaminharErro(request, response, "Tutor inválido.");
+                return;
+            }
         }
 
         Tutor tutorPet = new Tutor();
         tutorPet.setId(tutorId);
 
         if ("atualizar".equals(acao)) {
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                encaminharErro(request, response, "Requisição inválida.");
+                return;
+            }
             Pet petAtual = petDao.buscarPorId(id);
 
             if (petAtual == null || petAtual.getTutor() == null) {

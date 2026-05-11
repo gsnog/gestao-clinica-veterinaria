@@ -129,7 +129,11 @@ public class ConsultaServlet extends HttpServlet {
 
         } else if ("editar".equals(acao)) {
 
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                response.sendRedirect(request.getContextPath() + "/consultas");
+                return;
+            }
             Consulta consulta = consultaDAO.buscarPorId(id);
             if (consulta == null) {
                 response.sendRedirect(request.getContextPath() + "/consultas");
@@ -206,27 +210,76 @@ public class ConsultaServlet extends HttpServlet {
         String acao = request.getParameter("acao");
 
         if ("deletar".equals(acao)) {
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                response.sendRedirect(request.getContextPath() + "/consultas");
+                return;
+            }
             consultaDAO.deletar(id);
             response.sendRedirect(request.getContextPath() + "/consultas");
             return;
         }
 
-        LocalDateTime dataConsulta = LocalDateTime.parse(request.getParameter("dataConsulta"));
+        String dataConsultaParam = request.getParameter("dataConsulta");
         String motivo = request.getParameter("motivo");
         String diagnostico = request.getParameter("diagnostico");
 
-        Long petId = Long.parseLong(request.getParameter("petId"));
+        LocalDateTime dataConsulta;
+        try {
+            dataConsulta = LocalDateTime.parse(dataConsultaParam);
+        } catch (Exception e) {
+            request.setAttribute("erro", "Data e hora da consulta inválidas.");
+            List<Pet> pets = petDAO.listarTodos();
+            List<Veterinario> vets = vetDAO.listarTodos();
+            request.setAttribute("listaPets", pets);
+            request.setAttribute("listaVets", vets);
+            request.getRequestDispatcher("/form-consulta.jsp").forward(request, response);
+            return;
+        }
+
+        if (motivo == null || motivo.trim().isEmpty()) {
+            request.setAttribute("erro", "Motivo da consulta é obrigatório.");
+            List<Pet> pets = petDAO.listarTodos();
+            List<Veterinario> vets = vetDAO.listarTodos();
+            request.setAttribute("listaPets", pets);
+            request.setAttribute("listaVets", vets);
+            request.getRequestDispatcher("/form-consulta.jsp").forward(request, response);
+            return;
+        }
+
+        Long petId = parseLongPositivo(request.getParameter("petId"));
+        if (petId == null) {
+            request.setAttribute("erro", "Pet inválido.");
+            List<Pet> pets = petDAO.listarTodos();
+            List<Veterinario> vets = vetDAO.listarTodos();
+            request.setAttribute("listaPets", pets);
+            request.setAttribute("listaVets", vets);
+            request.getRequestDispatcher("/form-consulta.jsp").forward(request, response);
+            return;
+        }
         Pet pet = new Pet();
         pet.setId(petId);
 
-        Long vetId = Long.parseLong(request.getParameter("vetId"));
+        Long vetId = parseLongPositivo(request.getParameter("vetId"));
+        if (vetId == null) {
+            request.setAttribute("erro", "Veterinário inválido.");
+            List<Pet> pets = petDAO.listarTodos();
+            List<Veterinario> vets = vetDAO.listarTodos();
+            request.setAttribute("listaPets", pets);
+            request.setAttribute("listaVets", vets);
+            request.getRequestDispatcher("/form-consulta.jsp").forward(request, response);
+            return;
+        }
         Veterinario vet = new Veterinario();
         vet.setId(vetId);
 
         if ("atualizar".equals(acao)) {
 
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = parseLongPositivo(request.getParameter("id"));
+            if (id == null) {
+                response.sendRedirect(request.getContextPath() + "/consultas");
+                return;
+            }
             Consulta consulta = new Consulta();
             consulta.setId(id);
             consulta.setDataConsulta(dataConsulta);
