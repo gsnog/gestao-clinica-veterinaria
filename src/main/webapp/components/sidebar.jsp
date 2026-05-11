@@ -1,13 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="jakarta.servlet.http.HttpSession" %>
-<%
-    // Detecta a URL atual para marcar o item ativo na sidebar
-    String uri = request.getRequestURI();
-    HttpSession sessao = request.getSession(false);
-    String role = sessao != null ? (String) sessao.getAttribute("usuarioRole") : null;
-    boolean isTutor = "TUTOR".equals(role);
-    boolean isVeterinario = "VETERINARIO".equals(role);
-%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<c:set var="uri" value="${pageContext.request.requestURI}" />
+<c:set var="isVeterinario" value="${sessionScope.usuarioRole eq 'VETERINARIO'}" />
 
 <aside class="sidebar">
 
@@ -20,38 +15,38 @@
 
     <span class="nav-section">Principal</span>
 
-     <% if (isVeterinario) { %>
-     <a class="nav-item <%= uri.contains("/dashboard") || uri.endsWith("index.jsp") || uri.endsWith("/") ? "active" : "" %>"
+    <c:if test="${isVeterinario}">
+     <a class="nav-item ${fn:contains(uri, '/dashboard') ? 'active' : ''}"
          href="${pageContext.request.contextPath}/dashboard">
         <span class="nav-icon">🏠</span> Dashboard
     </a>
-     <% } %>
+    </c:if>
 
-    <a class="nav-item <%= uri.contains("/pets") ? "active" : "" %>"
+    <a class="nav-item ${fn:contains(uri, '/pets') ? 'active' : ''}"
        href="${pageContext.request.contextPath}/pets">
         <span class="nav-icon">🐶</span> Pets
     </a>
 
-    <a class="nav-item <%= uri.contains("/consultas") ? "active" : "" %>"
+    <a class="nav-item ${fn:contains(uri, '/consultas') ? 'active' : ''}"
        href="${pageContext.request.contextPath}/consultas">
         <span class="nav-icon">📋</span> Consultas
     </a>
 
-     <% if (isVeterinario) { %>
-     <a class="nav-item <%= uri.contains("/tutores") ? "active" : "" %>"
+    <c:if test="${isVeterinario}">
+     <a class="nav-item ${fn:contains(uri, '/tutores') ? 'active' : ''}"
          href="${pageContext.request.contextPath}/tutores">
           <span class="nav-icon">👤</span> Tutores
      </a>
 
-     <a class="nav-item <%= uri.contains("/veterinarios") ? "active" : "" %>"
+     <a class="nav-item ${fn:contains(uri, '/veterinarios') ? 'active' : ''}"
          href="${pageContext.request.contextPath}/veterinarios">
           <span class="nav-icon">🩺</span> Veterinários
      </a>
-     <% } %>
+    </c:if>
 
      <span class="nav-section">Conta</span>
 
-     <a class="nav-item <%= uri.contains("/perfil") ? "active" : "" %>"
+     <a class="nav-item ${fn:contains(uri, '/perfil') ? 'active' : ''}"
          href="${pageContext.request.contextPath}/perfil">
           <span class="nav-icon">🙍</span> Perfil
      </a>
