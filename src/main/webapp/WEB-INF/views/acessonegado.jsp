@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,7 +16,9 @@
         <section class="auth-card auth-card-compact">
             <div class="auth-form-panel auth-form-panel-full">
                 <h1 class="auth-title">Acesso negado</h1>
-                <p class="auth-text">Você não tem permissão para acessar esse recurso.</p>
+                <p class="auth-text">
+                    <c:out value="${not empty requestScope.erro ? requestScope.erro : 'Você não tem permissão para acessar esse recurso.'}"/>
+                </p>
                 <a class="btn btn-primary" href="${pageContext.request.contextPath}/pets">Voltar ao sistema</a>
             </div>
         </section>
