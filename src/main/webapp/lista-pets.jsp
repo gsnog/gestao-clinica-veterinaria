@@ -60,7 +60,12 @@
 
     <td>
         <c:if test="${not empty pet.tutor}">
-            <span class="table-id">#<c:out value="${pet.tutor.id}"/></span>
+            <div class="pet-cell">
+                <div>
+                    <div class="pet-name"><c:out value="${pet.tutor.nome}"/></div>
+                    <div class="table-id">#<c:out value="${pet.tutor.id}"/></div>
+                </div>
+            </div>
         </c:if>
     </td>
 
