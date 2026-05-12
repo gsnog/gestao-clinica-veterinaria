@@ -306,6 +306,9 @@ Senha: senha123
 - Incluir `csrf_token.jsp` em todos os formulários POST
 - Não usar formulários dinâmicos sem token
 
+## Vídeo do fluxo da aplicação
+- https://drive.google.com/file/d/1MhwRkFLC3_1SiI5TNvc2ZsMz_Y9O5Ikj/view?usp=drive_link
+
 ## 📄 Licença
 
 Projeto educacional - UFF 2026
