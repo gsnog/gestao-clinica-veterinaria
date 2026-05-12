@@ -18,7 +18,7 @@
 <div class="filter-bar">
     <form action="tutores" method="get" class="filter-group js-search-filter-form">
         <label for="tutoresBuscaInput">Busca</label>
-        <input type="text" name="busca" id="tutoresBuscaInput" class="js-search-filter-input" placeholder="Nome, telefone ou ID" value="${buscaParam}" autocomplete="off"/>
+        <input type="text" name="busca" id="tutoresBuscaInput" class="js-search-filter-input" placeholder="Nome, telefone ou ID" value="<c:out value='${buscaParam}'/>" autocomplete="off"/>
         <button type="submit" class="btn btn-filter">Filtrar</button>
         <a class="btn btn-primary" href="${pageContext.request.contextPath}/tutores">Limpar filtros</a>
     </form>
@@ -39,9 +39,9 @@
 <tbody>
 <c:forEach var="tutor" items="${listaTutores}">
 <tr>
-    <td class="cap">${tutor.nome}</td>
-    <td>${tutor.telefone}</td>
-     <td class="table-id">#${tutor.id}</td>
+    <td class="cap"><c:out value="${tutor.nome}"/></td>
+    <td><c:out value="${tutor.telefone}"/></td>
+     <td class="table-id">#<c:out value="${tutor.id}"/></td>
 
     <td class="actions">
         <a class="btn btn-edit"

@@ -22,7 +22,7 @@
 <div class="filter-bar">
     <form action="pets" method="get" class="filter-group js-search-filter-form">
         <label for="petsBuscaInput">Busca</label>
-        <input type="text" name="busca" id="petsBuscaInput" class="js-search-filter-input" placeholder="Nome ou ID do pet" value="${buscaParam}" autocomplete="off"/>
+        <input type="text" name="busca" id="petsBuscaInput" class="js-search-filter-input" placeholder="Nome ou ID do pet" value="<c:out value='${buscaParam}'/>" autocomplete="off"/>
         <button type="submit" class="btn btn-filter">Filtrar</button>
         <a class="btn btn-primary" href="${pageContext.request.contextPath}/pets">Limpar filtros</a>
     </form>
@@ -48,19 +48,19 @@
         <div class="pet-cell">
             <div class="pet-avatar">🐾</div>
             <div>
-                <div class="pet-name">${pet.nome}</div>
-                <div class="table-id">#${pet.id}</div>
+                <div class="pet-name"><c:out value="${pet.nome}"/></div>
+                <div class="table-id">#<c:out value="${pet.id}"/></div>
             </div>
         </div>
     </td>
 
-    <td>${pet.raca}</td>
+    <td><c:out value="${pet.raca}"/></td>
 
-    <td>${datasNascimentoFormatadas[pet.id]}</td>
+    <td><c:out value="${datasNascimentoFormatadas[pet.id]}"/></td>
 
     <td>
         <c:if test="${not empty pet.tutor}">
-            <span class="table-id">#${pet.tutor.id}</span>
+            <span class="table-id">#<c:out value="${pet.tutor.id}"/></span>
         </c:if>
     </td>
 
