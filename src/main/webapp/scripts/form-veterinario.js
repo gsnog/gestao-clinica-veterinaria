@@ -1,64 +1,151 @@
 (function () {
+
     'use strict';
 
     document.addEventListener('DOMContentLoaded', function () {
+
         const form = document.getElementById('vetForm');
-        if (!form || typeof VetValidation === 'undefined') return;
+
+        if (!form || typeof VetValidation === 'undefined') {
+            return;
+        }
 
         const crmvInput = document.getElementById('crmv');
+
         const select = document.getElementById('especialidadeSelect');
+
         const custom = document.getElementById('especialidadeCustom');
+
+        const especialidadeFinal = document.getElementById('especialidadeFinal');
+        const savedEspecialidade = (form.dataset.especialidade || '').trim();
 
         VetValidation.bindCrmvFormatter(crmvInput);
 
-        if (select && custom) {
-            select.addEventListener('change', function () {
-                if (select.value === 'outro') {
-                    custom.classList.remove('is-hidden');
-                    custom.required = true;
-                } else {
-                    custom.classList.add('is-hidden');
-                    custom.required = false;
-                }
-            });
+        function normalizeText(value) {
+            return value
+                .trim()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
         }
 
-        form.addEventListener('submit', function (e) {
-            if (select && custom && select.value === 'outro') {
-                select.value = custom.value;
+        function getMatchingOptionValue(especialidade) {
+            const normalizedEspecialidade = normalizeText(especialidade);
+
+            for (const option of select.options) {
+                if (!option.value) {
+                    continue;
+                }
+
+                if (normalizeText(option.value) === normalizedEspecialidade) {
+                    return option.value;
+                }
+
+                if (normalizeText(option.textContent) === normalizedEspecialidade) {
+                    return option.value;
+                }
             }
 
+            return '';
+        }
+
+        function toggleEspecialidadeCustom() {
+
+            const isOutro = select.value === 'outro';
+
+            custom.classList.toggle('is-hidden', !isOutro);
+
+            custom.required = isOutro;
+
+            if (!isOutro) {
+                custom.value = '';
+            }
+        }
+
+        if (savedEspecialidade) {
+            const matchedOption = getMatchingOptionValue(savedEspecialidade);
+
+            if (matchedOption) {
+                select.value = matchedOption;
+            } else {
+                select.value = 'outro';
+                custom.value = savedEspecialidade;
+            }
+        }
+
+        toggleEspecialidadeCustom();
+
+        select.addEventListener('change', toggleEspecialidadeCustom);
+
+        form.addEventListener('submit', function (e) {
+
             const v = VetValidation;
-            v.clearAllErrors(this);
+
+            v.clearAllErrors(form);
+
             let ok = true;
 
-            const nome = this.querySelector('[name="nomeVet"]');
+            const nome = form.querySelector('[name="nomeVet"]');
+
             const crmv = document.getElementById('crmv');
-            const especialidade = document.getElementById('especialidadeSelect');
 
             if (!nome.value.trim()) {
+
                 v.showError(nome, 'Informe o nome do veterinario.');
+
                 ok = false;
+
             } else if (nome.value.trim().length < 2) {
+
                 v.showError(nome, 'Nome deve ter pelo menos 2 caracteres.');
+
                 ok = false;
             }
 
             if (!crmv.value.trim()) {
+
                 v.showError(crmv, 'Informe o CRMV.');
+
                 ok = false;
+
             } else if (!v.isValidCrmv(crmv.value)) {
+
                 v.showError(crmv, 'Formato invalido. Use CRMV-UF 12345.');
+
                 ok = false;
             }
 
-            const espFinal = especialidade.value === 'outro' ? custom.value.trim() : especialidade.value;
-            if (!espFinal) {
-                v.showError(especialidade, 'Selecione ou informe a especialidade.');
-                ok = false;
+            let especialidade = '';
+
+            if (select.value === 'outro') {
+
+                especialidade = custom.value.trim();
+
+                if (!especialidade) {
+
+                    v.showError(custom, 'Informe a especialidade.');
+
+                    ok = false;
+                }
+
+            } else {
+
+                especialidade = select.value;
+
+                if (!especialidade) {
+
+                    v.showError(select, 'Selecione a especialidade.');
+
+                    ok = false;
+                }
             }
 
-            if (!ok) e.preventDefault();
+            especialidadeFinal.value = especialidade;
+
+            if (!ok) {
+                e.preventDefault();
+            }
         });
     });
+
 })();
