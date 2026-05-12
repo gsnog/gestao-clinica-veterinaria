@@ -1,17 +1,15 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="com.uff.gestaoclinicaveterinaria.model.Usuario" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="components/head.jsp" %>
 <%@ include file="components/sidebar.jsp" %>
 
-<main class="main">
+<c:set var="usuario" value="${requestScope.usuario}" />
+<c:set var="telefoneValue" value="${requestScope.telefoneValue}" />
+<c:set var="emailValue" value="${requestScope.emailValue}" />
+<c:set var="mostrarTelefoneTutor" value="${not empty usuario and usuario.role eq 'TUTOR'}" />
+<c:set var="mostrarFormContato" value="${not empty usuario and (usuario.role eq 'TUTOR' or usuario.role eq 'VETERINARIO')}" />
 
-<%
-    Usuario usuario = (Usuario) request.getAttribute("usuario");
-    String telefoneValue = (String) request.getAttribute("telefoneValue");
-    String emailValue = (String) request.getAttribute("emailValue");
-    boolean mostrarTelefoneTutor = usuario != null && "TUTOR".equals(usuario.getRole());
-    boolean mostrarFormContato = usuario != null && ("TUTOR".equals(usuario.getRole()) || "VETERINARIO".equals(usuario.getRole()));
-%>
+<main class="main">
 
 <div class="topbar">
     <div>
@@ -30,49 +28,49 @@
     <div class="profile-grid">
         <div class="profile-row">
             <span class="profile-label">ID</span>
-            <span class="profile-value"><%= usuario != null && usuario.getId() != null ? usuario.getId() : "-" %></span>
+            <span class="profile-value"><c:out value="${not empty usuario and not empty usuario.id ? usuario.id : '-'}"/></span>
         </div>
         <div class="profile-row">
             <span class="profile-label">Nome</span>
-            <span class="profile-value"><%= usuario != null && usuario.getNome() != null ? usuario.getNome() : "-" %></span>
+            <span class="profile-value"><c:out value="${not empty usuario and not empty usuario.nome ? usuario.nome : '-'}"/></span>
         </div>
         <div class="profile-row">
             <span class="profile-label">E-mail</span>
-            <span class="profile-value"><%= usuario != null && usuario.getEmail() != null ? usuario.getEmail() : "-" %></span>
+            <span class="profile-value"><c:out value="${not empty usuario and not empty usuario.email ? usuario.email : '-'}"/></span>
         </div>
         <div class="profile-row">
             <span class="profile-label">Perfil</span>
             <span class="profile-value">
-                <span class="badge badge-lav profile-role-badge"><%= usuario != null && usuario.getRole() != null ? usuario.getRole() : "-" %></span>
+                <span class="badge badge-lav profile-role-badge"><c:out value="${not empty usuario and not empty usuario.role ? usuario.role : '-'}"/></span>
             </span>
         </div>
-        <% if (mostrarTelefoneTutor) { %>
+        <c:if test="${mostrarTelefoneTutor}">
         <div class="profile-row">
             <span class="profile-label">Telefone</span>
-            <span class="profile-value"><%= telefoneValue != null && !telefoneValue.isBlank() ? telefoneValue : "-" %></span>
+            <span class="profile-value"><c:out value="${not empty telefoneValue ? telefoneValue : '-'}"/></span>
         </div>
-        <% } %>
+        </c:if>
     </div>
 </div>
 
-<% if (mostrarFormContato) { %>
+<c:if test="${mostrarFormContato}">
 <div class="card">
     <div class="card-header">
         <div class="card-title profile-card-title">
-            <span class="profile-card-icon"><%= mostrarTelefoneTutor ? "📞" : "✉️" %></span>
-            <span><%= mostrarTelefoneTutor ? "Contato do Tutor" : "E-mail" %></span>
+            <span class="profile-card-icon"><c:out value="${mostrarTelefoneTutor ? '📞' : '✉️'}"/></span>
+            <span><c:out value="${mostrarTelefoneTutor ? 'Contato do Tutor' : 'E-mail'}"/></span>
         </div>
     </div>
 
     <div class="profile-form-wrap">
 
-    <% if (request.getAttribute("erro") != null) { %>
-    <p class="profile-feedback auth-error"><%= request.getAttribute("erro") %></p>
-    <% } %>
+    <c:if test="${not empty requestScope.erro}">
+    <p class="profile-feedback auth-error"><c:out value="${requestScope.erro}"/></p>
+    </c:if>
 
-    <% if (request.getAttribute("sucesso") != null) { %>
-    <p class="profile-feedback auth-success"><%= request.getAttribute("sucesso") %></p>
-    <% } %>
+    <c:if test="${not empty requestScope.sucesso}">
+    <p class="profile-feedback auth-success"><c:out value="${requestScope.sucesso}"/></p>
+    </c:if>
 
     <form action="${pageContext.request.contextPath}/perfil" method="post" class="profile-form">
         <%@ include file="components/csrf_token.jsp" %>
@@ -85,13 +83,13 @@
                     name="email"
                     id="email"
                     placeholder="seuemail@exemplo.com"
-                    value="<%= emailValue != null ? emailValue : (usuario != null && usuario.getEmail() != null ? usuario.getEmail() : "") %>"
+                    value="<c:out value='${not empty emailValue ? emailValue : (not empty usuario and not empty usuario.email ? usuario.email : "" )}'/>"
                     required
                 />
             </div>
         </div>
 
-        <% if (mostrarTelefoneTutor) { %>
+        <c:if test="${mostrarTelefoneTutor}">
         <div class="form-row single">
             <div class="form-group">
                 <label for="telefone">Telefone</label>
@@ -102,20 +100,20 @@
                     placeholder="(21) 99999-9999"
                     maxlength="15"
                     pattern="\(\d{2}\)\s\d{4,5}-\d{4}"
-                    value="<%= telefoneValue != null ? telefoneValue : "" %>"
+                    value="<c:out value='${not empty telefoneValue ? telefoneValue : ""}'/>"
                     required
                 />
                 <small class="text-muted">Formato: (DDD) 99999-9999</small>
             </div>
         </div>
-        <% } %>
+        </c:if>
 
         <div class="form-actions">
             <button class="btn btn-submit profile-submit">Salvar informações de contato</button>
         </div>
     </form>
 
-    <% if (mostrarTelefoneTutor) { %>
+    <c:if test="${mostrarTelefoneTutor}">
         <form action="${pageContext.request.contextPath}/perfil" method="post"
             class="mt-12 js-confirm-submit"
             data-confirm-message="Tem certeza que deseja excluir sua conta? Essa ação não pode ser desfeita.">
@@ -123,10 +121,10 @@
         <input type="hidden" name="acao" value="deletarConta"/>
         <button type="submit" class="btn btn-danger">Excluir minha conta</button>
     </form>
-    <% } %>
+    </c:if>
     </div>
 </div>
-<% } %>
+</c:if>
 
 </main>
 <script src="${pageContext.request.contextPath}/scripts/perfil.js" defer></script>
