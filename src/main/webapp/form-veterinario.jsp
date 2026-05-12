@@ -22,7 +22,7 @@
     Editar Veterinário
 </div>
 
-<form action="veterinarios" method="post" id="vetForm" novalidate>
+<form action="veterinarios" method="post" id="vetForm" novalidate data-especialidade="${veterinario.especialidade}">
 <%@ include file="components/csrf_token.jsp" %>
 
 <input type="hidden" name="id" value="${veterinario.id}"/>
@@ -54,19 +54,19 @@
     <div class="form-group">
         <label>Especialidade</label>
 
-        <select name="especialidadeVet" id="especialidadeSelect" required>
+        <select id="especialidadeSelect" required>
             <option value="">Selecione uma especialidade</option>
 
-            <option>Clinica Geral</option>
-            <option>Cirurgia</option>
-            <option>Dermatologia</option>
-            <option>Cardiologia</option>
-            <option>Ortopedia</option>
-            <option>Oftalmologia</option>
-            <option>Oncologia</option>
-            <option>Neurologia</option>
-            <option>Endocrinologia</option>
-            <option>Exoticos</option>
+            <option value="Clínico Geral">Clínico Geral</option>
+            <option value="Cirurgia">Cirurgia</option>
+            <option value="Dermatologia">Dermatologia</option>
+            <option value="Cardiologia">Cardiologia</option>
+            <option value="Ortopedia">Ortopedia</option>
+            <option value="Oftalmologia">Oftalmologia</option>
+            <option value="Oncologia">Oncologia</option>
+            <option value="Neurologia">Neurologia</option>
+            <option value="Endocrinologia">Endocrinologia</option>
+            <option value="Exóticos">Exóticos</option>
             <option value="outro">Outros</option>
         </select>
 
@@ -74,7 +74,11 @@
                id="especialidadeCustom"
                name="especialidadeCustom"
                placeholder="Digite a especialidade"
-             class="is-hidden mt-8"/>
+               class="is-hidden mt-8"/>
+
+        <input type="hidden"
+            name="especialidadeVet"
+            id="especialidadeFinal"/>
     </div>
 </div>
 
