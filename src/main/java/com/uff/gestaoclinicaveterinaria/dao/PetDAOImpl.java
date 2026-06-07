@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +19,18 @@ public class PetDAOImpl implements PetDAO {
     public void salvar(Pet pet) {
         String sql = "INSERT INTO pet (nome, raca, data_nascimento, tutor_id) VALUES (?, ?, ?, ?)";
         try (Connection conn = ConnectionFactory.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, pet.getNome());
             stmt.setString(2, pet.getRaca());
             stmt.setDate(3, Date.valueOf(pet.getDataNascimento()));
             stmt.setLong(4, pet.getTutor().getId());
             stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    pet.setId(rs.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
