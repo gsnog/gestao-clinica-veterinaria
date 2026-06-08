@@ -1,6 +1,15 @@
 import apiFetch, { toFormBody } from './apiClient';
 
 const domainService = {
+  login: (payload) => apiFetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
+  registro: (payload) => apiFetch('/api/registro', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
+
   getDashboard: () => apiFetch('/api/dashboard'),
   listPets: () => apiFetch('/api/pets'),
   listConsultas: () => apiFetch('/api/consultas'),

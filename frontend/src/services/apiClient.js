@@ -12,7 +12,18 @@ async function apiFetch(path, options = {}) {
   });
 
   if (!response.ok) {
-    throw new Error('Falha ao comunicar com a API.');
+    let mensagem = 'Falha ao comunicar com a API.';
+    let fieldErrors;
+    try {
+      const corpo = await response.json();
+      if (corpo?.message) mensagem = corpo.message;
+      fieldErrors = corpo?.fieldErrors;
+    } catch {
+      // resposta de erro sem corpo JSON: mantém a mensagem genérica
+    }
+    const erro = new Error(mensagem);
+    if (fieldErrors) erro.fieldErrors = fieldErrors;
+    throw erro;
   }
 
   const contentType = response.headers.get('content-type') || '';

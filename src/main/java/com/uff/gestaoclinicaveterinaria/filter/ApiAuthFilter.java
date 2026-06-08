@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpSession;
 @WebFilter(urlPatterns = {"/api/*"})
 public class ApiAuthFilter implements Filter {
 
-    private static final Set<String> ROTAS_PUBLICAS = Set.of("/api/login");
+    private static final Set<String> ROTAS_PUBLICAS = Set.of("/api/login", "/api/registro");
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
