@@ -107,4 +107,35 @@ public class TutorDAOImpl implements TutorDAO {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public String buscarTelefonePorUsuarioId(Long usuarioId) {
+        String sql = "SELECT telefone FROM tutor WHERE usuario_id = ?";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, usuarioId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("telefone");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void salvarTelefonePorUsuarioId(Long usuarioId, String telefone) {
+        String sql = "INSERT INTO tutor (usuario_id, telefone) VALUES (?, ?) "
+                + "ON CONFLICT (usuario_id) DO UPDATE SET telefone = EXCLUDED.telefone";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, usuarioId);
+            stmt.setString(2, telefone);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao salvar telefone.", e);
+        }
+    }
 }

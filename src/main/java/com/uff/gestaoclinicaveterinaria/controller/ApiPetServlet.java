@@ -33,6 +33,29 @@ public class ApiPetServlet extends ApiServlet {
         String role = roleUsuarioLogado(request);
         Long idLogado = idUsuarioLogado(request);
 
+        String pathInfo = request.getPathInfo();
+        if (pathInfo != null && !pathInfo.isBlank()) {
+            Long idPet = extrairIdDoPath(request);
+            if (idPet == null) {
+                responderErro(response, HttpServletResponse.SC_BAD_REQUEST, "Identificador inválido.");
+                return;
+            }
+
+            Pet pet = petDAO.buscarPorId(idPet);
+            if (pet == null || pet.getTutor() == null) {
+                responderErro(response, HttpServletResponse.SC_NOT_FOUND, "Pet não encontrado.");
+                return;
+            }
+
+            if ("TUTOR".equals(role) && !idLogado.equals(pet.getTutor().getId())) {
+                responderErro(response, HttpServletResponse.SC_FORBIDDEN, "Você só pode visualizar pets vinculados ao seu cadastro.");
+                return;
+            }
+
+            responderJson(response, HttpServletResponse.SC_OK, paraDTO(pet));
+            return;
+        }
+
         List<Pet> lista = "TUTOR".equals(role) ? petDAO.buscarPorTutor(idLogado) : petDAO.listarTodos();
         responderJson(response, HttpServletResponse.SC_OK, lista.stream().map(this::paraDTO).toList());
     }

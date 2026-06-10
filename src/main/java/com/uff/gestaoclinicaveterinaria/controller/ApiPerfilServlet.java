@@ -10,7 +10,6 @@ import com.uff.gestaoclinicaveterinaria.dao.UsuarioDAO;
 import com.uff.gestaoclinicaveterinaria.dao.UsuarioDAOImpl;
 import com.uff.gestaoclinicaveterinaria.dto.PerfilRequestDTO;
 import com.uff.gestaoclinicaveterinaria.dto.UsuarioResponseDTO;
-import com.uff.gestaoclinicaveterinaria.model.Tutor;
 import com.uff.gestaoclinicaveterinaria.model.Usuario;
 import com.uff.gestaoclinicaveterinaria.util.InputSanitizer;
 import com.uff.gestaoclinicaveterinaria.util.InputValidator;
@@ -58,7 +57,7 @@ public class ApiPerfilServlet extends ApiServlet {
 
         String email = InputSanitizer.sanitizarTexto(corpo != null ? corpo.email() : null);
         String telefone = InputSanitizer.sanitizarTexto(corpo != null ? corpo.telefone() : null);
-        boolean tutor = "TUTOR".equals(usuario.getRole());
+        boolean usaTelefone = "TUTOR".equals(usuario.getRole()) || "VETERINARIO".equals(usuario.getRole());
 
         Map<String, String> erros = new LinkedHashMap<>();
         if (InputValidator.isNullOrBlank(email)) {
@@ -67,7 +66,7 @@ public class ApiPerfilServlet extends ApiServlet {
             erros.put("email", "E-mail inválido.");
         }
 
-        if (tutor) {
+        if (usaTelefone) {
             if (InputValidator.isNullOrBlank(telefone)) {
                 erros.put("telefone", "Informe o telefone.");
             } else if (!InputValidator.telefoneValido(telefone)) {
@@ -90,15 +89,8 @@ public class ApiPerfilServlet extends ApiServlet {
         usuarioDAO.atualizarEmail(usuario.getId(), email);
 
         String telefoneAtualizado = null;
-        if (tutor) {
-            Tutor tutorRegistro = tutorDAO.buscarPorId(usuario.getId());
-            if (tutorRegistro == null) {
-                tutorRegistro = new Tutor();
-                tutorRegistro.setId(usuario.getId());
-                tutorRegistro.setNome(usuario.getNome());
-            }
-            tutorRegistro.setTelefone(telefone);
-            tutorDAO.atualizar(tutorRegistro);
+        if (usaTelefone) {
+            tutorDAO.salvarTelefonePorUsuarioId(usuario.getId(), telefone);
             telefoneAtualizado = telefone;
         }
 
@@ -110,10 +102,9 @@ public class ApiPerfilServlet extends ApiServlet {
     }
 
     private String buscarTelefone(Usuario usuario) {
-        if (!"TUTOR".equals(usuario.getRole())) {
+        if (!"TUTOR".equals(usuario.getRole()) && !"VETERINARIO".equals(usuario.getRole())) {
             return null;
         }
-        Tutor tutor = tutorDAO.buscarPorId(usuario.getId());
-        return tutor != null ? tutor.getTelefone() : null;
+        return tutorDAO.buscarTelefonePorUsuarioId(usuario.getId());
     }
 }

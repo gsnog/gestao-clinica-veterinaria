@@ -99,7 +99,11 @@ public class PetDAOImpl implements PetDAO {
 
     public List<Pet> buscarPorTutor(Long tutorId) {
         List<Pet> pets = new ArrayList<>();
-        String sql = "SELECT * FROM pet WHERE tutor_id = ?";
+        String sql = "SELECT p.id, p.nome, p.raca, p.data_nascimento, p.tutor_id, u.nome AS tutor_nome "
+                + "FROM pet p "
+                + "LEFT JOIN usuario u ON u.id = p.tutor_id "
+                + "WHERE p.tutor_id = ? "
+                + "ORDER BY p.nome";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, tutorId);
@@ -115,6 +119,7 @@ public class PetDAOImpl implements PetDAO {
 
                     Tutor tutor = new Tutor();
                     tutor.setId(rs.getLong("tutor_id"));
+                    tutor.setNome(rs.getString("tutor_nome"));
                     pet.setTutor(tutor);
 
                     pets.add(pet);
