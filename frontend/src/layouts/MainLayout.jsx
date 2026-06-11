@@ -33,44 +33,44 @@ function MainLayout() {
   const visibleItems = navItems.filter((item) => item.roles.includes(role));
 
   return (
-    <>
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <img src="/images/logo.png" alt="logo" />
+      <>
+        <aside className="sidebar">
+          <div className="brand">
+            <div className="brand-icon">
+              <img src="/images/logo.png" alt="logo" />
+            </div>
+            <span className="brand-name">VetCare</span>
           </div>
-          <span className="brand-name">VetCare</span>
-        </div>
 
-        <span className="nav-section">Principal</span>
+          <span className="nav-section">Principal</span>
 
-        {visibleItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
-          >
-            <span className="nav-icon">{item.icon}</span>
-            {item.label}
+          {visibleItems.map((item) => (
+              <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                {item.label}
+              </NavLink>
+          ))}
+
+          <NavLink to="/login" className="nav-item" onClick={logout}>
+            <span className="nav-icon">↩</span>
+            Sair
           </NavLink>
-        ))}
 
-        <NavLink to="/login" className="nav-item" onClick={logout}>
-          <span className="nav-icon">↩</span>
-          Sair
-        </NavLink>
-
-        <div className="sidebar-footer">
-          <div className="sidebar-footer-text">
-            VetCare v1.0
-            <br />
-            Gestão Veterinária – UFF
+          <div className="sidebar-footer">
+            <div className="sidebar-footer-text">
+              VetCare v1.0
+              <br />
+              Gestão Veterinária – UFF
+            </div>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      <Outlet />
-    </>
+        <Outlet />
+      </>
   );
 }
 

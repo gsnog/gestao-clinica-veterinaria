@@ -122,7 +122,8 @@ Será redirecionado para login automaticamente.
 - **AuthFilter**: bloqueia rotas protegidas sem sessão
   - Vet-only: `/dashboard`, `/veterinarios`, `/tutores`
   - Tutor|Vet: `/consultas`, `/pets`, `/perfil`
-- **CSRF Filter**: valida tokens em POST (exceto `/login`, `/registro`)
+- **ApiAuthFilter**: bloqueia `/api/*` sem sessão, exceto `/api/login`, `/api/registro` e `/api/csrf`, sempre com resposta JSON
+- **CSRF Filter**: valida tokens em formulários JSP via `_csrf` e em mutações da API via header `X-CSRF-Token`
 
 ## 👤 Fluxo de Papéis
 
@@ -196,7 +197,7 @@ veterinario_id (FK → usuario.id onde role=VETERINARIO)
 - ✅ **Autenticação**: Login com email + senha
 - ✅ **Autorização**: Role-based access control (RBAC)
 - ✅ **Criptografia**: Senhas com salt + bcrypt (PasswordUtil)
-- ✅ **CSRF**: Token validado em formulários POST
+- ✅ **CSRF**: Token validado em formulários POST e em `POST`/`PUT`/`DELETE` de `/api/*`
 - ✅ **Injection**: PreparedStatements em todas as queries
 - ✅ **IDOR**: Validação de propriedade em editar/deletar (pet, consulta)
 - ✅ **HTTP-only Cookies**: Sessão não acessível via JavaScript
@@ -304,6 +305,7 @@ Senha: senha123
 ### "CSRF token inválido"
 - Token armazenado em sessão server-side
 - Incluir `csrf_token.jsp` em todos os formulários POST
+- No React/API, chamar `GET /api/csrf` e enviar `X-CSRF-Token` nas requisições mutantes
 - Não usar formulários dinâmicos sem token
 
 ## Vídeo do fluxo da aplicação
