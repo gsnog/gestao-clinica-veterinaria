@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import useBodyClass from '../hooks/useBodyClass';
 import { useAuth } from '../contexts/authContext';
 
@@ -14,8 +14,15 @@ const navItems = [
 function MainLayout() {
   useBodyClass('');
   const { role, logout } = useAuth();
+  const navigate = useNavigate();
 
   const visibleItems = navItems.filter((item) => item.roles.includes(role));
+
+  async function handleLogout(event) {
+    event.preventDefault();
+    await logout();
+    navigate('/login', { replace: true });
+  }
 
   return (
     <>
@@ -40,7 +47,7 @@ function MainLayout() {
           </NavLink>
         ))}
 
-        <NavLink to="/login" className="nav-item" onClick={logout}>
+        <NavLink to="/login" className="nav-item" onClick={handleLogout}>
           <span className="nav-icon">↩</span>
           Sair
         </NavLink>
