@@ -1,0 +1,26 @@
+meta {
+  name: Excluir Pet
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:8080/clinica/api/pets/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+
+  test("resposta em JSON", function() {
+    expect(res.headers["content-type"]).to.contain("application/json");
+  });
+}
