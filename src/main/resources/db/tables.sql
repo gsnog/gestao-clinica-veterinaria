@@ -5,7 +5,7 @@ CREATE TABLE usuario (
     email VARCHAR(120) NOT NULL UNIQUE,
     senha_hash VARCHAR(255) NOT NULL,
     salt VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('TUTOR', 'VETERINARIO'))
+    role VARCHAR(20) NOT NULL CHECK (role IN ('TUTOR', 'VETERINARIO', 'ADMIN'))
 );
 
 CREATE TABLE tutor (
