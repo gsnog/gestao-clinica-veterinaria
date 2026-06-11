@@ -1,0 +1,23 @@
+meta {
+  name: Excluir Pet com CSRF
+  type: http
+  seq: 3
+}
+
+delete {
+  url: http://localhost:8080/clinica/api/pets/1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  X-CSRF-Token: {{csrfToken}}
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+}
