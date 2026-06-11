@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import domainService from '../services/domainService';
+import { clearCsrfToken } from '../services/apiClient';
 import AuthContext from './authContext';
 import { getDefaultRoute, readStoredAuth, writeStoredAuth } from './authStorage';
 
@@ -46,9 +47,16 @@ export function AuthProvider({ children }) {
       setUser(authUser);
       writeStoredAuth(authUser);
     },
-    logout() {
-      setUser(null);
-      writeStoredAuth(null);
+    async logout() {
+      try {
+        await domainService.logout();
+      } catch {
+        // Mesmo se a API falhar, a UI local deve sair da sessão.
+      } finally {
+        clearCsrfToken();
+        setUser(null);
+        writeStoredAuth(null);
+      }
     },
   }), [loading, user]);
 

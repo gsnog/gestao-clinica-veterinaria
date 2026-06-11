@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "VetCare API - CSRF PR43",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

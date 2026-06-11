@@ -9,6 +9,7 @@ const domainService = {
     method: 'POST',
     body: JSON.stringify(payload),
   }),
+  logout: () => apiFetch('/api/logout', { method: 'POST' }),
 
   getDashboard: () => apiFetch('/api/dashboard'),
   listPets: () => apiFetch('/api/pets'),

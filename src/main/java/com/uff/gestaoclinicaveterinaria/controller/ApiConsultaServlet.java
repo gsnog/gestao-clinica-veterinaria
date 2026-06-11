@@ -46,6 +46,7 @@ public class ApiConsultaServlet extends ApiServlet {
             responderErro(response, HttpServletResponse.SC_FORBIDDEN, "Apenas veterinários podem criar consultas.");
             return;
         }
+        Long veterinarioIdLogado = idUsuarioLogado(request);
 
         ConsultaRequestDTO corpo;
         try {
@@ -55,7 +56,13 @@ public class ApiConsultaServlet extends ApiServlet {
             return;
         }
 
-        ValidacaoConsulta validacao = validarConsulta(corpo);
+        if (!veterinarioIdPermitido(corpo, veterinarioIdLogado)) {
+            responderErro(response, HttpServletResponse.SC_FORBIDDEN,
+                    "Você só pode registrar consultas em nome do seu próprio cadastro.");
+            return;
+        }
+
+        ValidacaoConsulta validacao = validarConsulta(corpo, veterinarioIdLogado);
         if (!validacao.erros.isEmpty()) {
             responderErro(response, HttpServletResponse.SC_BAD_REQUEST, "Dados da consulta inválidos.", validacao.erros);
             return;
@@ -79,6 +86,7 @@ public class ApiConsultaServlet extends ApiServlet {
             responderErro(response, HttpServletResponse.SC_FORBIDDEN, "Apenas veterinários podem editar consultas.");
             return;
         }
+        Long veterinarioIdLogado = idUsuarioLogado(request);
 
         ConsultaRequestDTO corpo;
         try {
@@ -99,7 +107,13 @@ public class ApiConsultaServlet extends ApiServlet {
             return;
         }
 
-        ValidacaoConsulta validacao = validarConsulta(corpo);
+        if (!veterinarioIdPermitido(corpo, veterinarioIdLogado)) {
+            responderErro(response, HttpServletResponse.SC_FORBIDDEN,
+                    "Você só pode registrar consultas em nome do seu próprio cadastro.");
+            return;
+        }
+
+        ValidacaoConsulta validacao = validarConsulta(corpo, veterinarioIdLogado);
         if (!validacao.erros.isEmpty()) {
             responderErro(response, HttpServletResponse.SC_BAD_REQUEST, "Dados da consulta inválidos.", validacao.erros);
             return;
@@ -140,7 +154,13 @@ public class ApiConsultaServlet extends ApiServlet {
         responderJson(response, HttpServletResponse.SC_OK, corpoJson("success", true));
     }
 
-    private ValidacaoConsulta validarConsulta(ConsultaRequestDTO corpo) {
+    private boolean veterinarioIdPermitido(ConsultaRequestDTO corpo, Long veterinarioIdLogado) {
+        return corpo == null
+                || corpo.veterinarioId() == null
+                || corpo.veterinarioId().equals(veterinarioIdLogado);
+    }
+
+    private ValidacaoConsulta validarConsulta(ConsultaRequestDTO corpo, Long veterinarioIdLogado) {
         Map<String, String> erros = new LinkedHashMap<>();
 
         Pet pet = (corpo != null && corpo.petId() != null) ? petDAO.buscarPorId(corpo.petId()) : null;
@@ -148,7 +168,7 @@ public class ApiConsultaServlet extends ApiServlet {
             erros.put("petId", "Pet inválido.");
         }
 
-        Veterinario veterinario = (corpo != null && corpo.veterinarioId() != null) ? vetDAO.buscarPorId(corpo.veterinarioId()) : null;
+        Veterinario veterinario = veterinarioIdLogado != null ? vetDAO.buscarPorId(veterinarioIdLogado) : null;
         if (veterinario == null) {
             erros.put("veterinarioId", "Veterinário inválido.");
         }
