@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * Garante que toda rota /api/* (exceto login) tenha sessão ativa, respondendo
+ * Garante que toda rota /api/* (exceto rotas públicas) tenha sessão ativa, respondendo
  * sempre em JSON — nunca com redirect/HTML como o AuthFilter das views faz.
  * Regras de papel (TUTOR x VETERINARIO) e posse de recurso ficam por conta de
  * cada servlet, pois variam por ação dentro do mesmo endpoint.
@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpSession;
 @WebFilter(urlPatterns = {"/api/*"})
 public class ApiAuthFilter implements Filter {
 
-    private static final Set<String> ROTAS_PUBLICAS = Set.of("/api/login", "/api/registro");
+    private static final Set<String> ROTAS_PUBLICAS = Set.of("/api/login", "/api/registro", "/api/csrf");
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
@@ -47,6 +47,10 @@ public class ApiAuthFilter implements Filter {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuarioId") == null) {
+            if (session == null && metodoMutante(request)) {
+                responderProibido(response, "Requisição bloqueada: token CSRF inválido ou ausente.");
+                return;
+            }
             responderNaoAutenticado(response);
             return;
         }
@@ -62,5 +66,22 @@ public class ApiAuthFilter implements Filter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
         MAPPER.writeValue(response.getWriter(), corpo);
+    }
+
+    private void responderProibido(HttpServletResponse response, String mensagem) throws IOException {
+        Map<String, Object> corpo = new LinkedHashMap<>();
+        corpo.put("success", false);
+        corpo.put("message", mensagem);
+
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json;charset=UTF-8");
+        MAPPER.writeValue(response.getWriter(), corpo);
+    }
+
+    private boolean metodoMutante(HttpServletRequest request) {
+        String metodo = request.getMethod();
+        return "POST".equalsIgnoreCase(metodo)
+                || "PUT".equalsIgnoreCase(metodo)
+                || "DELETE".equalsIgnoreCase(metodo);
     }
 }
