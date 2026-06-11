@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/gestao-clinica-veterinaria';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/clinica';
 
 async function apiFetch(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -12,7 +12,18 @@ async function apiFetch(path, options = {}) {
   });
 
   if (!response.ok) {
-    throw new Error('Falha ao comunicar com a API.');
+    let mensagem = 'Falha ao comunicar com a API.';
+    let fieldErrors;
+    try {
+      const corpo = await response.json();
+      if (corpo?.message) mensagem = corpo.message;
+      fieldErrors = corpo?.fieldErrors;
+    } catch {
+      // resposta de erro sem corpo JSON: mantém a mensagem genérica
+    }
+    const erro = new Error(mensagem);
+    if (fieldErrors) erro.fieldErrors = fieldErrors;
+    throw erro;
   }
 
   const contentType = response.headers.get('content-type') || '';

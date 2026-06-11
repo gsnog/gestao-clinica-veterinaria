@@ -4,6 +4,21 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
 
+    <!--
+        Declarado aqui (em vez de @WebFilter) para garantir que rode antes dos
+        demais filtros descobertos por anotação, como o ApiAuthFilter — assim
+        o preflight OPTIONS e respostas de erro (401/403) também recebem os
+        cabeçalhos CORS, evitando bloqueio no navegador do front React.
+    -->
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>com.uff.gestaoclinicaveterinaria.filter.CorsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
     <welcome-file-list>
         <welcome-file>login</welcome-file>
     </welcome-file-list>
