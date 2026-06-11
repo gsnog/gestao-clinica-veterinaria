@@ -1,5 +1,7 @@
 package com.uff.gestaoclinicaveterinaria.dao;
 
+import java.util.List;
+
 import com.uff.gestaoclinicaveterinaria.model.Usuario;
 
 public interface UsuarioDAO {
@@ -9,4 +11,7 @@ public interface UsuarioDAO {
     void deletar(Long id);
     void atualizarEmail(Long id, String email);
     void atualizarSenha(Long id, String senhaHash, String salt);
+    List<Usuario> listarTodos();
+    void atualizarRole(Long id, String role);
+    long contarPorRole(String role);
 }
