@@ -42,3 +42,6 @@ build/
 # Smart Tomcat
 .smarttomcat/
 
+# Doc pessoal (não versionar)
+docs/admin-commit-e-execucao.md
+
