@@ -85,7 +85,14 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("usuarioRole", usuario.getRole());
         session.setMaxInactiveInterval(30 * 60);
 
-        String destino = "VETERINARIO".equals(usuario.getRole()) ? "/dashboard" : "/pets";
+        String destino;
+        if ("ADMIN".equals(usuario.getRole())) {
+            destino = "/admin";
+        } else if ("VETERINARIO".equals(usuario.getRole())) {
+            destino = "/dashboard";
+        } else {
+            destino = "/pets";
+        }
         response.sendRedirect(request.getContextPath() + destino);
     }
 }
