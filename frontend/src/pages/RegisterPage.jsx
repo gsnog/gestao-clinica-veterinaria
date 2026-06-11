@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import useBodyClass from '../hooks/useBodyClass';
 import { formatCrmv, formatTelefone, isCrmvValid, isEmailValid, isTelefoneValid } from '../utils/formatters';
+import domainService from '../services/domainService';
 
 function RegisterPage() {
   useBodyClass('auth-body');
@@ -14,6 +15,7 @@ function RegisterPage() {
     senha: '',
     role: 'TUTOR',
     crmv: '',
+    especialidade: '',
   });
   const [error, setError] = useState('');
 
@@ -29,7 +31,7 @@ function RegisterPage() {
     setForm((prev) => ({ ...prev, [name]: nextValue }));
   }
 
-  function onSubmit(event) {
+  async function onSubmit(event) {
     event.preventDefault();
 
     if (!form.nome.trim()) {
@@ -42,13 +44,13 @@ function RegisterPage() {
       return;
     }
 
-    if (!isTelefoneValid(form.telefone)) {
-      setError('Telefone inválido. Use o padrão (99) 99999-9999.');
+    if (form.senha.trim().length < 4) {
+      setError('A senha precisa ter pelo menos 4 caracteres.');
       return;
     }
 
-    if (form.senha.trim().length < 4) {
-      setError('A senha precisa ter pelo menos 4 caracteres.');
+    if (!isVeterinario && !isTelefoneValid(form.telefone)) {
+      setError('Telefone inválido. Use o padrão (99) 99999-9999.');
       return;
     }
 
@@ -57,8 +59,26 @@ function RegisterPage() {
       return;
     }
 
+    if (isVeterinario && !form.especialidade.trim()) {
+      setError('Informe a especialidade.');
+      return;
+    }
+
     setError('');
-    navigate('/login');
+    try {
+      await domainService.registro({
+        nome: form.nome,
+        email: form.email,
+        senha: form.senha,
+        role: form.role,
+        telefone: isVeterinario ? null : form.telefone,
+        crmv: isVeterinario ? form.crmv : null,
+        especialidade: isVeterinario ? form.especialidade : null,
+      });
+      navigate('/login');
+    } catch (requestError) {
+      setError(requestError.message || 'Não foi possível concluir o cadastro.');
+    }
   }
 
   return (
@@ -79,17 +99,19 @@ function RegisterPage() {
               <input id="email" name="email" type="email" value={form.email} onChange={onChange} required />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="telefone">Telefone</label>
-              <input
-                id="telefone"
-                name="telefone"
-                value={form.telefone}
-                onChange={onChange}
-                placeholder="(99) 99999-9999"
-                required
-              />
-            </div>
+            {!isVeterinario ? (
+              <div className="form-group">
+                <label htmlFor="telefone">Telefone</label>
+                <input
+                  id="telefone"
+                  name="telefone"
+                  value={form.telefone}
+                  onChange={onChange}
+                  placeholder="(99) 99999-9999"
+                  required
+                />
+              </div>
+            ) : null}
 
             <div className="form-group">
               <label htmlFor="senha">Senha</label>
@@ -117,17 +139,31 @@ function RegisterPage() {
             </div>
 
             {isVeterinario ? (
-              <div className="form-group">
-                <label htmlFor="crmv">CRMV</label>
-                <input
-                  id="crmv"
-                  name="crmv"
-                  value={form.crmv}
-                  onChange={onChange}
-                  placeholder="CRMV-RJ 12345"
-                  required
-                />
-              </div>
+              <>
+                <div className="form-group">
+                  <label htmlFor="crmv">CRMV</label>
+                  <input
+                    id="crmv"
+                    name="crmv"
+                    value={form.crmv}
+                    onChange={onChange}
+                    placeholder="CRMV-RJ 12345"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="especialidade">Especialidade</label>
+                  <input
+                    id="especialidade"
+                    name="especialidade"
+                    value={form.especialidade}
+                    onChange={onChange}
+                    placeholder="Ex.: Clínica geral"
+                    required
+                  />
+                </div>
+              </>
             ) : null}
 
             <button type="submit" className="btn btn-submit auth-submit">Cadastrar</button>

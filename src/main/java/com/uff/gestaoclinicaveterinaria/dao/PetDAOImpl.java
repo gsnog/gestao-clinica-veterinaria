@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +19,18 @@ public class PetDAOImpl implements PetDAO {
     public void salvar(Pet pet) {
         String sql = "INSERT INTO pet (nome, raca, data_nascimento, tutor_id) VALUES (?, ?, ?, ?)";
         try (Connection conn = ConnectionFactory.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, pet.getNome());
             stmt.setString(2, pet.getRaca());
             stmt.setDate(3, Date.valueOf(pet.getDataNascimento()));
             stmt.setLong(4, pet.getTutor().getId());
             stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    pet.setId(rs.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -92,7 +99,11 @@ public class PetDAOImpl implements PetDAO {
 
     public List<Pet> buscarPorTutor(Long tutorId) {
         List<Pet> pets = new ArrayList<>();
-        String sql = "SELECT * FROM pet WHERE tutor_id = ?";
+        String sql = "SELECT p.id, p.nome, p.raca, p.data_nascimento, p.tutor_id, u.nome AS tutor_nome "
+                + "FROM pet p "
+                + "LEFT JOIN usuario u ON u.id = p.tutor_id "
+                + "WHERE p.tutor_id = ? "
+                + "ORDER BY p.nome";
         try (Connection conn = ConnectionFactory.getConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, tutorId);
@@ -108,6 +119,7 @@ public class PetDAOImpl implements PetDAO {
 
                     Tutor tutor = new Tutor();
                     tutor.setId(rs.getLong("tutor_id"));
+                    tutor.setNome(rs.getString("tutor_nome"));
                     pet.setTutor(tutor);
 
                     pets.add(pet);

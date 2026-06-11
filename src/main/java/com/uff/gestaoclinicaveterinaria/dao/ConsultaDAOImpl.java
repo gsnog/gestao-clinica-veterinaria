@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,13 +27,19 @@ public class ConsultaDAOImpl implements ConsultaDAO {
     public void salvar(Consulta consulta) {
         String sql = "INSERT INTO consulta (data_consulta, motivo, diagnostico, pet_id, veterinario_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConnectionFactory.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setTimestamp(1, Timestamp.valueOf(consulta.getDataConsulta()));
             stmt.setString(2, consulta.getMotivo());
             stmt.setString(3, consulta.getDiagnostico());
             stmt.setLong(4, consulta.getPet().getId());
             stmt.setLong(5, consulta.getVeterinario().getId());
             stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    consulta.setId(rs.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

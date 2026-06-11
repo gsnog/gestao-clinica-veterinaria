@@ -17,12 +17,15 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * Valida o token CSRF em todas as requisições POST, exceto /login e /registro
- * (que são formulários pré-autenticação e não possuem token de sessão ainda).
+ * (que são formulários pré-autenticação e não possuem token de sessão ainda)
+ * e /api/* (consumido via fetch JSON com credentials: 'include', que não tem
+ * como enviar o token "_csrf" como parâmetro de formulário).
  */
 @WebFilter(urlPatterns = {"/*"})
 public class CsrfFilter implements Filter {
 
     private static final Set<String> ROTAS_PUBLICAS = Set.of("/login", "/registro");
+    private static final String PREFIXO_API = "/api/";
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -43,7 +46,7 @@ public class CsrfFilter implements Filter {
                     ? uri.substring(contextPath.length())
                     : uri;
 
-            if (!ROTAS_PUBLICAS.contains(path)) {
+            if (!ROTAS_PUBLICAS.contains(path) && !path.startsWith(PREFIXO_API)) {
                 // Se não há sessão, AuthFilter já redirecionará; deixar passar.
                 if (session != null) {
                     String tokenRecebido = request.getParameter("_csrf");

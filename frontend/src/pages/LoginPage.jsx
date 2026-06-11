@@ -3,12 +3,14 @@ import { useState } from 'react';
 import useBodyClass from '../hooks/useBodyClass';
 import { isEmailValid } from '../utils/formatters';
 import { useAuth } from '../contexts/authContext';
+import { getDefaultRoute } from '../contexts/authStorage';
+import domainService from '../services/domainService';
 
 function LoginPage() {
   useBodyClass('auth-body');
 
   const navigate = useNavigate();
-  const { defaultRoute } = useAuth();
+  const { setUser } = useAuth();
   const [form, setForm] = useState({ email: '', senha: '', manterConectado: false });
   const [error, setError] = useState('');
 
@@ -17,7 +19,7 @@ function LoginPage() {
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   }
 
-  function onSubmit(event) {
+  async function onSubmit(event) {
     event.preventDefault();
 
     if (!isEmailValid(form.email) || form.senha.trim().length < 4) {
@@ -26,7 +28,17 @@ function LoginPage() {
     }
 
     setError('');
-    navigate(defaultRoute || '/login');
+    try {
+      const result = await domainService.login({
+        email: form.email,
+        senha: form.senha,
+        lembrar: form.manterConectado,
+      });
+      setUser(result.user);
+      navigate(getDefaultRoute(result.user.role), { replace: true });
+    } catch (requestError) {
+      setError(requestError.message || 'Não foi possível entrar. Tente novamente.');
+    }
   }
 
   return (

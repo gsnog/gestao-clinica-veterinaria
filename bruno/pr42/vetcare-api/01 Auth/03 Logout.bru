@@ -1,0 +1,26 @@
+meta {
+  name: Logout
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/clinica/api/logout
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+
+  test("resposta em JSON", function() {
+    expect(res.headers["content-type"]).to.contain("application/json");
+  });
+}
