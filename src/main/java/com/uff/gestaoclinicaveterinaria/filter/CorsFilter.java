@@ -1,6 +1,8 @@
 package com.uff.gestaoclinicaveterinaria.filter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -28,6 +30,11 @@ public class CorsFilter implements Filter {
                     ? System.getenv("FRONTEND_ORIGIN")
                     : "http://localhost:5173";
 
+    private static final List<String> ORIGENS_PERMITIDAS = Arrays.asList(
+            ORIGEM_PERMITIDA,
+            "https://gsnog.github.io"
+    );
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
@@ -35,7 +42,9 @@ public class CorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        response.setHeader("Access-Control-Allow-Origin", ORIGEM_PERMITIDA);
+        String origin = request.getHeader("Origin");
+        response.setHeader("Access-Control-Allow-Origin",
+                origin != null && ORIGENS_PERMITIDAS.contains(origin) ? origin : ORIGEM_PERMITIDA);
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-CSRF-Token");
