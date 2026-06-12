@@ -3,6 +3,8 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 <c:set var="isVeterinario" value="${sessionScope.usuarioRole eq 'VETERINARIO'}" />
+<c:set var="isAdmin" value="${sessionScope.usuarioRole eq 'ADMIN'}" />
+<c:set var="isVetOuAdmin" value="${isVeterinario or isAdmin}" />
 
 <aside class="sidebar">
 
@@ -14,6 +16,13 @@
     </div>
 
     <span class="nav-section">Principal</span>
+
+    <c:if test="${isAdmin}">
+     <a class="nav-item ${fn:contains(uri, '/admin') ? 'active' : ''}"
+         href="${pageContext.request.contextPath}/admin">
+        <span class="nav-icon">🛡️</span> Admin
+    </a>
+    </c:if>
 
     <c:if test="${isVeterinario}">
      <a class="nav-item ${fn:contains(uri, '/dashboard') ? 'active' : ''}"
@@ -32,7 +41,7 @@
         <span class="nav-icon">📋</span> Consultas
     </a>
 
-    <c:if test="${isVeterinario}">
+    <c:if test="${isVetOuAdmin}">
      <a class="nav-item ${fn:contains(uri, '/tutores') ? 'active' : ''}"
          href="${pageContext.request.contextPath}/tutores">
           <span class="nav-icon">👤</span> Tutores
@@ -41,6 +50,13 @@
      <a class="nav-item ${fn:contains(uri, '/veterinarios') ? 'active' : ''}"
          href="${pageContext.request.contextPath}/veterinarios">
           <span class="nav-icon">🩺</span> Veterinários
+     </a>
+    </c:if>
+
+    <c:if test="${isAdmin}">
+     <a class="nav-item ${fn:contains(uri, '/usuarios') ? 'active' : ''}"
+         href="${pageContext.request.contextPath}/usuarios">
+          <span class="nav-icon">👥</span> Usuários
      </a>
     </c:if>
 

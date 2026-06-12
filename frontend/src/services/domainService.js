@@ -55,6 +55,15 @@ const domainService = {
             method: "POST",
             body: JSON.stringify(payload),
         }),
+
+    getAdminDashboard: () => apiFetch("/api/admin/dashboard"),
+    listUsuarios: () => apiFetch("/api/usuarios"),
+    saveUsuario: (payload, id) =>
+        apiFetch("/api/usuarios", {
+            method: id ? "PUT" : "POST",
+            body: JSON.stringify(id ? { ...payload, id } : payload),
+        }),
+    deleteUsuario: (id) => apiFetch(`/api/usuarios/${id}`, { method: "DELETE" }),
 };
 
 export default domainService;

@@ -75,7 +75,8 @@ public class PerfilServlet extends HttpServlet {
         String telefone = InputSanitizer.sanitizarTexto(request.getParameter("telefone"));
         String email = InputSanitizer.sanitizarTexto(request.getParameter("email"));
 
-        if (!("TUTOR".equals(usuario.getRole()) || "VETERINARIO".equals(usuario.getRole()))) {
+        if (!("TUTOR".equals(usuario.getRole()) || "VETERINARIO".equals(usuario.getRole())
+                || "ADMIN".equals(usuario.getRole()))) {
             response.sendRedirect(request.getContextPath() + "/perfil");
             return;
         }
@@ -113,7 +114,7 @@ public class PerfilServlet extends HttpServlet {
             return;
         }
 
-        if ("VETERINARIO".equals(usuario.getRole())) {
+        if ("VETERINARIO".equals(usuario.getRole()) || "ADMIN".equals(usuario.getRole())) {
             usuarioDAO.atualizarEmail(usuario.getId(), email);
             response.sendRedirect(request.getContextPath() + "/perfil?contatoAtualizado=1");
             return;

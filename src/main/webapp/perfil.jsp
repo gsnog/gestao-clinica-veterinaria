@@ -7,7 +7,7 @@
 <c:set var="telefoneValue" value="${requestScope.telefoneValue}" />
 <c:set var="emailValue" value="${requestScope.emailValue}" />
 <c:set var="mostrarTelefoneTutor" value="${not empty usuario and usuario.role eq 'TUTOR'}" />
-<c:set var="mostrarFormContato" value="${not empty usuario and (usuario.role eq 'TUTOR' or usuario.role eq 'VETERINARIO')}" />
+<c:set var="mostrarFormContato" value="${not empty usuario and (usuario.role eq 'TUTOR' or usuario.role eq 'VETERINARIO' or usuario.role eq 'ADMIN')}" />
 
 <main class="main">
 

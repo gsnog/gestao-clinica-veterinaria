@@ -3,7 +3,13 @@ import useBodyClass from "../hooks/useBodyClass";
 import { useAuth } from "../contexts/authContext";
 
 const navItems = [
-  { to: "/dashboard", icon: "🏠", label: "Dashboard", roles: ["VETERINARIO"] },
+  { to: "/admin", icon: "🛡️", label: "Admin", roles: ["ADMIN"] },
+  {
+    to: "/dashboard",
+    icon: "🏠",
+    label: "Dashboard",
+    roles: ["VETERINARIO", "ADMIN"],
+  },
   { to: "/pets", icon: "🐶", label: "Pets", roles: ["TUTOR", "VETERINARIO"] },
   {
     to: "/consultas",
@@ -11,18 +17,24 @@ const navItems = [
     label: "Consultas",
     roles: ["TUTOR", "VETERINARIO"],
   },
-  { to: "/tutores", icon: "👤", label: "Tutores", roles: ["VETERINARIO"] },
+  {
+    to: "/tutores",
+    icon: "👤",
+    label: "Tutores",
+    roles: ["VETERINARIO", "ADMIN"],
+  },
   {
     to: "/veterinarios",
     icon: "🩺",
     label: "Veterinários",
-    roles: ["VETERINARIO"],
+    roles: ["VETERINARIO", "ADMIN"],
   },
+  { to: "/usuarios", icon: "👥", label: "Usuários", roles: ["ADMIN"] },
   {
     to: "/perfil",
     icon: "🙍",
     label: "Perfil",
-    roles: ["TUTOR", "VETERINARIO"],
+    roles: ["TUTOR", "VETERINARIO", "ADMIN"],
   },
 ];
 

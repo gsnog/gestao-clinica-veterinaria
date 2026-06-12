@@ -483,6 +483,12 @@ tbody tr:hover td {
   background: var(--cream);
 }
 
+.table-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 28px;
+}
+
 .pet-cell {
   display: flex;
   align-items: center;

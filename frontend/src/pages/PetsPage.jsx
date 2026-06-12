@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import Topbar from '../components/Topbar';
+import SearchBar from '../components/SearchBar';
+import DataTable from '../components/DataTable';
 import domainService from '../services/domainService';
 import { normalizeText } from '../utils/formatters';
 
@@ -42,6 +44,38 @@ function PetsPage() {
     }
   }
 
+  const columns = [
+    {
+      key: 'pet',
+      header: 'Pet',
+      render: (pet) => (
+        <div className="pet-cell">
+          <span className="pet-avatar">🐾</span>
+          <div>
+            <div className="pet-name">{pet.nome}</div>
+            <div className="pet-breed">{pet.raca}</div>
+          </div>
+        </div>
+      ),
+    },
+    { key: 'tutor', header: 'Tutor', render: (pet) => pet.tutor?.nome || '-' },
+    {
+      key: 'nascimento',
+      header: 'Nascimento',
+      render: (pet) => new Date(pet.dataNascimento).toLocaleDateString('pt-BR'),
+    },
+    {
+      key: 'acoes',
+      header: 'Ações',
+      render: (pet) => (
+        <div className="actions">
+          <Link className="btn btn-edit" to={`/pets/${pet.id}/editar`}>Editar</Link>
+          <button type="button" className="btn btn-danger" onClick={() => remover(pet.id)}>Excluir</button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <main className="main">
       <Topbar
@@ -50,52 +84,11 @@ function PetsPage() {
         action={<Link className="btn btn-primary" to="/pets/novo">+ Novo pet</Link>}
       />
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Buscar por nome, raça ou tutor"
-          value={busca}
-          onChange={(event) => setBusca(event.target.value)}
-        />
-      </div>
+      <SearchBar placeholder="Buscar por nome, raça ou tutor" value={busca} onChange={setBusca} />
 
       {erro ? <p className="filter-feedback mb-16">{erro}</p> : null}
 
-      <section className="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Pet</th>
-              <th>Tutor</th>
-              <th>Nascimento</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {petsFiltrados.map((pet) => (
-              <tr key={pet.id}>
-                <td>
-                  <div className="pet-cell">
-                    <span className="pet-avatar">🐾</span>
-                    <div>
-                      <div className="pet-name">{pet.nome}</div>
-                      <div className="pet-breed">{pet.raca}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>{pet.tutor?.nome || '-'}</td>
-                <td>{new Date(pet.dataNascimento).toLocaleDateString('pt-BR')}</td>
-                <td>
-                  <div className="actions">
-                    <Link className="btn btn-edit" to={`/pets/${pet.id}/editar`}>Editar</Link>
-                    <button type="button" className="btn btn-danger" onClick={() => remover(pet.id)}>Excluir</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <DataTable columns={columns} data={petsFiltrados} rowKey={(pet) => pet.id} emptyMessage="Nenhum pet encontrado." />
     </main>
   );
 }

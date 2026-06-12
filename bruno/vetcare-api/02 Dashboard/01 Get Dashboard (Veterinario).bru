@@ -1,0 +1,26 @@
+meta {
+  name: Get Dashboard (Veterinario)
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8080/clinica/api/dashboard
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+
+  test("resposta em JSON", function() {
+    expect(res.headers["content-type"]).to.contain("application/json");
+  });
+}

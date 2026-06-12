@@ -1,0 +1,29 @@
+meta {
+  name: Get Admin Dashboard
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/clinica/api/admin/dashboard
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+
+  test("contem totais da plataforma", function() {
+    expect(res.body).to.have.property("estatisticas");
+    expect(res.body).to.have.property("totalTutores");
+    expect(res.body).to.have.property("totalVeterinarios");
+    expect(res.body).to.have.property("totalAdmins");
+  });
+}

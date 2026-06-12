@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import Topbar from "../components/Topbar";
+import DataTable from "../components/DataTable";
 import domainService from "../services/domainService";
 import { useAuth } from "../contexts/authContext";
 import { normalizeText } from "../utils/formatters";
@@ -144,6 +145,35 @@ function ConsultasPage() {
     }
   }
 
+  const columns = [
+    {
+      key: "data",
+      header: "Data",
+      render: (consulta) => new Date(consulta.dataConsulta).toLocaleString("pt-BR"),
+    },
+    { key: "pet", header: "Pet", render: (consulta) => consulta.pet?.nome },
+    { key: "veterinario", header: "Veterinário", render: (consulta) => consulta.veterinario?.nome },
+    { key: "motivo", header: "Motivo", render: (consulta) => consulta.motivo },
+    ...(canManageConsultas
+      ? [
+          {
+            key: "acoes",
+            header: "Ações",
+            render: (consulta) => (
+              <div className="actions">
+                <Link className="btn btn-edit" to={`/consultas/${consulta.id}/editar`}>
+                  Editar
+                </Link>
+                <button type="button" className="btn btn-danger" onClick={() => remover(consulta.id)}>
+                  Excluir
+                </button>
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ];
+
   return (
     <main className="main">
       <Topbar
@@ -208,50 +238,12 @@ function ConsultasPage() {
       ) : null}
       {erro ? <p className="filter-feedback mb-16">{erro}</p> : null}
 
-      <section className="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Pet</th>
-              <th>Veterinário</th>
-              <th>Motivo</th>
-              {canManageConsultas ? <th>Ações</th> : null}
-            </tr>
-          </thead>
-          <tbody>
-            {consultasFiltradas.map((consulta) => (
-              <tr key={consulta.id}>
-                <td>
-                  {new Date(consulta.dataConsulta).toLocaleString("pt-BR")}
-                </td>
-                <td>{consulta.pet?.nome}</td>
-                <td>{consulta.veterinario?.nome}</td>
-                <td>{consulta.motivo}</td>
-                {canManageConsultas ? (
-                  <td>
-                    <div className="actions">
-                      <Link
-                        className="btn btn-edit"
-                        to={`/consultas/${consulta.id}/editar`}
-                      >
-                        Editar
-                      </Link>
-                      <button
-                        type="button"
-                        className="btn btn-danger"
-                        onClick={() => remover(consulta.id)}
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </td>
-                ) : null}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <DataTable
+        columns={columns}
+        data={consultasFiltradas}
+        rowKey={(consulta) => consulta.id}
+        emptyMessage="Nenhuma consulta encontrada."
+      />
     </main>
   );
 }

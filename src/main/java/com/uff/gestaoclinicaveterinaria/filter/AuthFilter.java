@@ -18,7 +18,9 @@ import jakarta.servlet.http.HttpSession;
         "/consultas",
         "/pets",
         "/tutores",
-        "/veterinarios"
+        "/veterinarios",
+        "/admin",
+        "/usuarios"
 })
 public class AuthFilter implements Filter {
 
@@ -38,15 +40,22 @@ public class AuthFilter implements Filter {
         String role = (String) session.getAttribute("usuarioRole");
         String uri = request.getRequestURI();
 
+        if (uri.endsWith("/admin") || uri.endsWith("/usuarios")) {
+            if (!"ADMIN".equals(role)) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+                return;
+            }
+        }
+
         if (uri.endsWith("/dashboard") || uri.endsWith("/veterinarios") || uri.endsWith("/tutores")) {
-            if (!"VETERINARIO".equals(role)) {
+            if (!"VETERINARIO".equals(role) && !"ADMIN".equals(role)) {
                 response.sendRedirect(request.getContextPath() + "/acesso-negado");
                 return;
             }
         }
 
         if (uri.endsWith("/consultas") || uri.endsWith("/pets") || uri.endsWith("/perfil")) {
-            if (!"TUTOR".equals(role) && !"VETERINARIO".equals(role)) {
+            if (!"TUTOR".equals(role) && !"VETERINARIO".equals(role) && !"ADMIN".equals(role)) {
                 response.sendRedirect(request.getContextPath() + "/acesso-negado");
                 return;
             }

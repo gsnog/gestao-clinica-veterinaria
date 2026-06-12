@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import Topbar from '../components/Topbar';
+import SearchBar from '../components/SearchBar';
+import DataTable from '../components/DataTable';
 import domainService from '../services/domainService';
 import { normalizeText } from '../utils/formatters';
 
@@ -41,46 +43,30 @@ function TutoresPage() {
     }
   }
 
+  const columns = [
+    { key: 'nome', header: 'Nome', className: 'cap', render: (tutor) => tutor.nome },
+    { key: 'telefone', header: 'Telefone', render: (tutor) => tutor.telefone || '-' },
+    {
+      key: 'acoes',
+      header: 'Ações',
+      render: (tutor) => (
+        <div className="actions">
+          <Link className="btn btn-edit" to={`/tutores/${tutor.id}/editar`}>Editar</Link>
+          <button type="button" className="btn btn-danger" onClick={() => remover(tutor.id)}>Excluir</button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <main className="main">
       <Topbar title="Tutores" subtitle="Cadastro de responsáveis" />
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Buscar por nome ou telefone"
-          value={busca}
-          onChange={(event) => setBusca(event.target.value)}
-        />
-      </div>
+      <SearchBar placeholder="Buscar por nome ou telefone" value={busca} onChange={setBusca} />
 
       {erro ? <p className="filter-feedback mb-16">{erro}</p> : null}
 
-      <section className="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Telefone</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tutoresFiltrados.map((tutor) => (
-              <tr key={tutor.id}>
-                <td className="cap">{tutor.nome}</td>
-                <td>{tutor.telefone || '-'}</td>
-                <td>
-                  <div className="actions">
-                    <Link className="btn btn-edit" to={`/tutores/${tutor.id}/editar`}>Editar</Link>
-                    <button type="button" className="btn btn-danger" onClick={() => remover(tutor.id)}>Excluir</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <DataTable columns={columns} data={tutoresFiltrados} rowKey={(tutor) => tutor.id} emptyMessage="Nenhum tutor encontrado." />
     </main>
   );
 }

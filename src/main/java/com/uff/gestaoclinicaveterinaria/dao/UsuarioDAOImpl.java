@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.uff.gestaoclinicaveterinaria.model.Usuario;
 import com.uff.gestaoclinicaveterinaria.util.ConnectionFactory;
@@ -118,6 +120,19 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     }
 
     @Override
+    public void atualizarNome(Long id, String nome) {
+        String sql = "UPDATE usuario SET nome = ? WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nome);
+            stmt.setLong(2, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar nome do usuário.", e);
+        }
+    }
+
+    @Override
     public void atualizarSenha(Long id, String senhaHash, String salt) {
         String sql = "UPDATE usuario SET senha_hash = ?, salt = ? WHERE id = ?";
         try (Connection conn = ConnectionFactory.getConexao();
@@ -129,5 +144,60 @@ public class UsuarioDAOImpl implements UsuarioDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao atualizar senha do usuário.", e);
         }
+    }
+
+    @Override
+    public List<Usuario> listarTodos() {
+        String sql = "SELECT id, nome, email, role FROM usuario ORDER BY nome";
+        List<Usuario> usuarios = new ArrayList<>();
+
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setId(rs.getLong("id"));
+                usuario.setNome(rs.getString("nome"));
+                usuario.setEmail(rs.getString("email"));
+                usuario.setRole(rs.getString("role"));
+                usuarios.add(usuario);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar usuários.", e);
+        }
+
+        return usuarios;
+    }
+
+    @Override
+    public void atualizarRole(Long id, String role) {
+        String sql = "UPDATE usuario SET role = ? WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, role);
+            stmt.setLong(2, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar papel do usuário.", e);
+        }
+    }
+
+    @Override
+    public long contarPorRole(String role) {
+        String sql = "SELECT COUNT(*) FROM usuario WHERE role = ?";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, role);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao contar usuários por papel.", e);
+        }
+        return 0;
     }
 }

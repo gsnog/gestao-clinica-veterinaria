@@ -75,6 +75,16 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-maven-plugin</artifactId>
+                <version>12.0.10</version>
+            </plugin>
         </plugins>
     </build>
 </project>
