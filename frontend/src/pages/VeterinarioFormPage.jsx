@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Topbar from '../components/Topbar';
 import domainService from '../services/domainService';
 import { formatCrmv, formatTelefone, isCrmvValid, isEmailValid, isTelefoneValid } from '../utils/formatters';
@@ -15,6 +15,32 @@ function VeterinarioFormPage() {
     especialidade: '',
   });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!id) return;
+
+    domainService
+      .listVeterinarios()
+      .then((result) => {
+        const veterinarios = result.items || result || [];
+        const veterinario = veterinarios.find((item) => String(item?.id) === String(id));
+
+        if (!veterinario) {
+          throw new Error();
+        }
+
+        setForm((prev) => ({
+          ...prev,
+          nome: veterinario.nome || '',
+          crmv: veterinario.crmv || '',
+          especialidade: veterinario.especialidade || '',
+        }));
+        setError('');
+      })
+      .catch(() => {
+        setError('Não foi possível carregar os dados do veterinário.');
+      });
+  }, [id]);
 
   function onChange(event) {
     const { name, value } = event.target;

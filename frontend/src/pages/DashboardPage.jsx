@@ -4,19 +4,19 @@ import Topbar from "../components/Topbar";
 import domainService from "../services/domainService";
 
 const galleryImages = [
-  "/images/pet01.jpg",
-  "/images/pet02.jpg",
-  "/images/pet03.jpg",
-  "/images/pet04.jpg",
-  "/images/pet05.jpg",
-  "/images/pet06.jpg",
-  "/images/pet07.jpg",
-  "/images/pet08.jpg",
-  "/images/pet09.jpg",
-  "/images/pet010.jpg",
-  "/images/pet011.jpg",
-  "/images/pet012.jpg",
-];
+  "pet01.jpg",
+  "pet02.jpg",
+  "pet03.jpg",
+  "pet04.jpg",
+  "pet05.jpg",
+  "pet06.jpg",
+  "pet07.jpg",
+  "pet08.jpg",
+  "pet09.jpg",
+  "pet010.jpg",
+  "pet011.jpg",
+  "pet012.jpg",
+].map((file) => `${import.meta.env.BASE_URL}images/${file}`);
 
 function DashboardPage() {
   const [stats, setStats] = useState({

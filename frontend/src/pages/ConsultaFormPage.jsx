@@ -66,7 +66,7 @@ function ConsultaFormPage() {
       <section className="form-card">
         <aside className="form-sidebar">
           <img
-            src="/images/consulta.webp"
+            src={`${import.meta.env.BASE_URL}images/consulta.webp`}
             alt="Consulta"
             className="form-sidebar-image"
           />
