@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Topbar from "../components/Topbar";
 import domainService from "../services/domainService";
 import {
@@ -13,6 +13,31 @@ function TutorFormPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ nome: "", email: "", telefone: "" });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!id) return;
+
+    domainService
+      .listTutores()
+      .then((result) => {
+        const tutores = result.items || result || [];
+        const tutor = tutores.find((item) => String(item?.id) === String(id));
+
+        if (!tutor) {
+          throw new Error();
+        }
+
+        setForm((prev) => ({
+          ...prev,
+          nome: tutor.nome || "",
+          telefone: tutor.telefone || "",
+        }));
+        setError("");
+      })
+      .catch(() => {
+        setError("Não foi possível carregar os dados do tutor.");
+      });
+  }, [id]);
 
   function onChange(event) {
     const { name, value } = event.target;
@@ -54,7 +79,7 @@ function TutorFormPage() {
       <section className="form-card">
         <aside className="form-sidebar">
           <img
-            src="/images/tutor.webp"
+            src={`${import.meta.env.BASE_URL}images/tutor.webp`}
             alt="Tutor"
             className="form-sidebar-image"
           />
