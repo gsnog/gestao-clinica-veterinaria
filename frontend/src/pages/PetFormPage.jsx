@@ -106,7 +106,7 @@ function PetFormPage() {
       <section className="form-card">
         <aside className="form-sidebar">
           <img
-            src="/images/pet.webp"
+            src={`${import.meta.env.BASE_URL}images/pet.webp`}
             alt="Pet"
             className="form-sidebar-image"
           />

@@ -37,7 +37,7 @@ function MainLayout() {
         <aside className="sidebar">
           <div className="brand">
             <div className="brand-icon">
-              <img src="/images/logo.png" alt="logo" />
+              <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="logo" />
             </div>
             <span className="brand-name">VetCare</span>
           </div>

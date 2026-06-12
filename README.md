@@ -39,7 +39,7 @@ src/main/
 
 ## 🚀 Como Rodar
 
-### Opção A — Docker (recomendado)
+### Backend — Docker
 
 Sobe o backend (Tomcat) + banco de dados (PostgreSQL) com um único comando, sem precisar instalar Java, Maven, Tomcat ou Postgres na máquina.
 
@@ -55,7 +55,7 @@ docker compose up -d --build
 ```
 
 Isso cria dois containers:
-- **db**: PostgreSQL 16, banco `clinica`, usuário `vet_admin` / senha `vet_admin`, exposto em `localhost:5433` (as tabelas/views/índices de `src/main/resources/db` são criados automaticamente na primeira vez)
+- **db**: PostgreSQL 16, banco `clinica`, usuário `vet_admin` / senha `vet_admin`, exposto em `localhost:5433` (as tabelas/views/índices/seed de `src/main/resources/db` são criados automaticamente na primeira vez)
 - **backend**: build do projeto com Maven + deploy no Tomcat 11, exposto em `localhost:8080`
 
 #### 2. Acessar a aplicação
@@ -84,64 +84,15 @@ docker compose up -d --build
 
 > Nota: o Postgres do Docker usa a porta **5433** (e não 5432) para não conflitar com um Postgres que já esteja instalado/rodando na sua máquina.
 
-### Opção B — Ambiente local (sem Docker)
+### Frontend — GitHub Pages
 
-#### Pré-requisitos
-- JDK 21+
-- Maven 3.9+
-- PostgreSQL 12+
-- Tomcat 10/11 (ou outro servlet container compatível com Jakarta Servlet 6.1)
-
-#### 1. Configurar Banco de Dados
-
-```bash
-# Criar banco e usuário
-psql -U postgres -c "CREATE DATABASE clinica;"
-psql -U postgres -c "CREATE USER vet_admin WITH PASSWORD 'sua_senha';"
-psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE clinica TO vet_admin;"
-
-# Executar scripts SQL
-psql -U vet_admin -d clinica -f src/main/resources/db/tables.sql
-psql -U vet_admin -d clinica -f src/main/resources/db/view.sql
-psql -U vet_admin -d clinica -f src/main/resources/db/index.sql
-```
-
-#### 2. Configurar Variáveis de Ambiente
-
-```bash
-export DB_URL="jdbc:postgresql://localhost:5432/clinica"
-export DB_USER="vet_admin"
-export DB_PASSWORD="sua_senha"
-```
-
-Importante: as variáveis devem estar no mesmo terminal que inicia o servidor (Tomcat/Jetty).
-
-Exemplo (macOS/Linux, Tomcat):
-
-```bash
-export DB_URL="jdbc:postgresql://localhost:5432/clinica"
-export DB_USER="vet_admin"
-export DB_PASSWORD="sua_senha"
-$CATALINA_HOME/bin/catalina.sh run
-```
-
-#### 3. Build e Deploy
-
-```bash
-# Compilar e empacotar
-mvn clean package
-
-# Deploy em servidor (ex: Tomcat), com context path /clinica
-cp target/gestao-clinica-veterinaria-1.0-SNAPSHOT.war $CATALINA_HOME/webapps/clinica.war
-```
-
-#### 4. Acessar a Aplicação
+O frontend React já está publicado e pronto para uso, apontando para o backend local em `http://localhost:8080/clinica`:
 
 ```
-http://localhost:8080/clinica
+https://gsnog.github.io/gestao-clinica-veterinaria/
 ```
 
-Será redirecionado para login automaticamente.
+Basta o backend (Docker, acima) estar rodando na sua máquina para o front conseguir fazer login e usar a aplicação.
 
 ## 🔐 Fluxo de Autenticação
 
@@ -317,14 +268,6 @@ O frontend React fica em `frontend/` e é publicado no GitHub Pages via `.github
 - **URL de produção**: https://gsnog.github.io/gestao-clinica-veterinaria/
 - **Base URL da API**: configurada em `frontend/.env` (`VITE_API_BASE_URL`), apontando por padrão para `http://localhost:8080/clinica` — ou seja, mesmo com o front publicado no GitHub Pages, ele continua chamando o backend rodando na sua máquina local.
 - **CORS**: o `CorsFilter` (`src/main/java/.../filter/CorsFilter.java`) libera as origens `http://localhost:5173` (dev local do Vite) e `https://gsnog.github.io` (GitHub Pages) para acessar `/api/*` com cookies de sessão.
-
-Para rodar o front localmente:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
 
 ## 🧪 Testando Localmente
 
