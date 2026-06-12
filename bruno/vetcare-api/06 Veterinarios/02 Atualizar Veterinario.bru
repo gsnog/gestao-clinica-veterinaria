@@ -1,0 +1,36 @@
+meta {
+  name: Atualizar Veterinario
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://localhost:8080/clinica/api/veterinarios
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  X-CSRF-Token: {{csrfToken}}
+}
+
+body:json {
+  {
+    "id": 2,
+    "nome": "Veterinario QA Bruno",
+    "crmv": "CRMV-RJ 12345",
+    "especialidade": "Clínica Geral"
+  }
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+
+  test("resposta em JSON", function() {
+    expect(res.headers["content-type"]).to.contain("application/json");
+  });
+}

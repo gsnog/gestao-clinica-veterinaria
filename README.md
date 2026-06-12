@@ -7,6 +7,7 @@ Aplicação web completa para gestão de consultórios veterinários, desenvolvi
 VetCare é um sistema de gestão que permite:
 - **Tutores**: Cadastrar e gerenciar seus pets, visualizar histórico de consultas
 - **Veterinários**: Gerenciar consultórios, atender tutores e pets, controlar equipe
+- **Admin**: Administrar a plataforma — painel com estatísticas gerais e gestão completa de usuários (criar, editar, redefinir senha, alterar papel e excluir)
 
 ## 🏗️ Arquitetura
 
@@ -37,6 +38,19 @@ src/main/
 - **Build**: Maven 3.x
 - **Padrões**: MVC, DAO, CSRF, SessionCookie
 
+### ⚠️ Sobre as JSPs e Servlets legados
+
+As páginas JSP (`src/main/webapp/*.jsp`) e os Servlets que usam `RequestDispatcher.forward()`
+(`PetServlet`, `ConsultaServlet`, `TutorServlet`, `VeterinarioServlet`, `UsuarioServlet`,
+`DashboardServlet`, `PerfilServlet`, `LoginServlet`, etc.) **são resquícios do primeiro
+trabalho (MVC com JSP)** e foram mantidos no repositório apenas como **referência/comparação**
+da evolução do projeto.
+
+A aplicação atual **roda inteiramente sobre a API REST** (`Api*Servlet`, rotas `/api/*`,
+sempre retornando JSON) consumida pelo **front-end em React** (`frontend/`). Nenhuma tela
+do projeto depende mais de `forward()` para JSP — o fluxo real do usuário é
+100% React + `/api/*`.
+
 ## 🚀 Como Rodar
 
 O front (React) já está publicado no GitHub Pages e o back (Java/Tomcat + PostgreSQL) roda na sua máquina via Docker. Basta clonar o repo, subir o Docker e abrir o link do GitHub Pages.
@@ -60,7 +74,7 @@ docker compose up -d --build
 ```
 
 Na primeira vez vai demorar um pouco (baixa as imagens e builda o projeto). Isso cria dois containers:
-- **db**: PostgreSQL 16, banco `clinica`, usuário `vet_admin` / senha `vet_admin`, exposto em `localhost:5433`. Na primeira inicialização, as tabelas/views/índices e os usuários de teste (`seed.sql`) de `src/main/resources/db` são criados automaticamente.
+- **db**: PostgreSQL 16, banco `clinica`, usuário `vet_admin` / senha `vet_admin`, exposto em `localhost:5433`. Na primeira inicialização, as tabelas/views/índices, os usuários de teste (`seed.sql`) e o primeiro administrador (`seed_admin.sql`) de `src/main/resources/db` são criados automaticamente.
 - **backend**: build do projeto com Maven + deploy no Tomcat 11, exposto em `localhost:8080` (context path `/clinica`)
 
 Para confirmar que subiu certo:
@@ -123,14 +137,16 @@ docker compose up -d --build
 3. Cria sessão HTTP com:
    - `usuarioId` (PK)
    - `usuarioNome`
-   - `usuarioRole` (TUTOR | VETERINARIO)
+   - `usuarioRole` (TUTOR | VETERINARIO | ADMIN)
 4. **TUTOR** → redireciona para `/pets`
 5. **VETERINARIO** → redireciona para `/dashboard`
+6. **ADMIN** → redireciona para `/admin`
 
 ### Autorização
 - **AuthFilter**: bloqueia rotas protegidas sem sessão
-  - Vet-only: `/dashboard`, `/veterinarios`, `/tutores`
-  - Tutor|Vet: `/consultas`, `/pets`, `/perfil`
+  - Admin-only: `/admin`, `/usuarios`
+  - Vet|Admin: `/dashboard`, `/veterinarios`, `/tutores`
+  - Tutor|Vet|Admin: `/consultas`, `/pets`, `/perfil`
 - **ApiAuthFilter**: bloqueia `/api/*` sem sessão, exceto `/api/login`, `/api/registro` e `/api/csrf`, sempre com resposta JSON
 - **CSRF Filter**: valida tokens em formulários JSP via `_csrf` e em mutações da API via header `X-CSRF-Token`
 
@@ -155,6 +171,15 @@ docker compose up -d --build
 - ✅ Dashboard com estatísticas
 - ✅ Editar perfil
 
+### Admin
+- ✅ Painel administrativo (`/admin`) com totais da plataforma (pets, tutores, veterinários, consultas, admins)
+- ✅ Gestão de usuários (`/usuarios`): listar, buscar, criar, editar, redefinir senha, alterar papel e excluir
+- ✅ Acesso de supervisão a `/dashboard`, `/tutores` e `/veterinarios`
+- ✅ Editar o próprio e-mail em `/perfil`
+- ❌ Não pode excluir a própria conta
+- ❌ Não pode excluir/rebaixar o último administrador (o sistema sempre precisa de ao menos um)
+- ❌ O perfil ADMIN não pode ser criado pelo cadastro público (`/registro`) — apenas pelo seed inicial ou por outro admin em `/usuarios`
+
 ## 🗄️ Modelo de Dados
 
 ### Tabelas Principais
@@ -166,7 +191,7 @@ nome
 email (UNIQUE)
 senha_hash
 salt
-role (TUTOR | VETERINARIO)
+role (TUTOR | VETERINARIO | ADMIN)
 ```
 
 **tutor** (FK: usuario_id)
@@ -205,7 +230,7 @@ veterinario_id (FK → usuario.id onde role=VETERINARIO)
 ### Implementado
 - ✅ **Autenticação**: Login com email + senha
 - ✅ **Autorização**: Role-based access control (RBAC)
-- ✅ **Criptografia**: Senhas com salt + bcrypt (PasswordUtil)
+- ✅ **Criptografia**: Senhas com salt aleatório + SHA-256 (PasswordUtil) — recomenda-se migrar para bcrypt/Argon2 em trabalho futuro
 - ✅ **CSRF**: Token validado em formulários POST e em `POST`/`PUT`/`DELETE` de `/api/*`
 - ✅ **Injection**: PreparedStatements em todas as queries
 - ✅ **IDOR**: Validação de propriedade em editar/deletar (pet, consulta)
@@ -218,6 +243,12 @@ veterinario_id (FK → usuario.id onde role=VETERINARIO)
 - Sensitive fields not exposed to client (senha_hash, salt)
 - GET deletes bloqueadas (POST obrigatório)
 - Logout invalida sessão anterior
+
+### Guardrails do perfil ADMIN (`UsuarioPolicy`)
+- Admin não pode excluir a própria conta
+- Não é permitido excluir ou rebaixar o último administrador (o sistema sempre precisa de ao menos um)
+- `role` só aceita TUTOR, VETERINARIO ou ADMIN
+- Regras cobertas por testes automatizados (`UsuarioPolicyTest`, 9 casos)
 
 ## 🎨 Design System
 
@@ -296,6 +327,17 @@ Email: vet@exemplo.com
 Senha: senha123
 ```
 
+### Usuário Admin (seed inicial)
+```
+Email: admin@vetcare.com
+Senha: Admin@123
+```
+> Criado automaticamente pelo `seed_admin.sql`. Recomenda-se trocar a senha após o primeiro login, em `/usuarios`. O perfil ADMIN não pode ser criado pelo cadastro público — novos admins são promovidos por um admin já autenticado na tela `/usuarios`.
+
+### Testando a API com Bruno
+
+A pasta [`bruno/vetcare-api`](./bruno/vetcare-api) contém uma collection do [Bruno](https://www.usebruno.com/) com requisições para todos os endpoints `/api/*` (CSRF, login/logout, perfil, dashboard, pets, consultas, tutores, veterinários e usuários/admin). Abra a pasta `bruno/vetcare-api` no Bruno e siga o fluxo descrito no [README da collection](./bruno/vetcare-api/README.md).
+
 ## 📚 Endpoints Principais
 
 | Método | Rota | Descrição |
@@ -309,6 +351,18 @@ Senha: senha123
 | GET/POST | `/tutores` | CRUD de tutores (vet only) |
 | GET/POST | `/veterinarios` | CRUD de veterinários (vet only) |
 | GET | `/perfil` | Perfil do usuário logado |
+| GET | `/admin` | Painel administrativo (admin only) |
+| GET/POST | `/usuarios` | Gestão de usuários: listar, criar, editar, redefinir senha, excluir (admin only) |
+
+### API JSON (`/api/*`, consumida pelo React)
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/admin/dashboard` | Totais da plataforma (admin only) |
+| GET | `/api/usuarios` | Lista todos os usuários (admin only) |
+| POST | `/api/usuarios` | Cria usuário com papel TUTOR\|VETERINARIO\|ADMIN (admin only) |
+| PUT | `/api/usuarios` | Atualiza nome/e-mail/papel e, opcionalmente, redefine a senha (admin only) |
+| DELETE | `/api/usuarios/{id}` | Exclui usuário, respeitando os guardrails de último admin/autoexclusão (admin only) |
 
 ## 🐛 Troubleshooting
 

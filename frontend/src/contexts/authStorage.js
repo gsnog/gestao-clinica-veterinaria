@@ -19,5 +19,7 @@ export function writeStoredAuth(authUser) {
 }
 
 export function getDefaultRoute(role) {
-  return role === 'TUTOR' ? '/pets' : '/dashboard';
+  if (role === 'TUTOR') return '/pets';
+  if (role === 'ADMIN') return '/admin';
+  return '/dashboard';
 }

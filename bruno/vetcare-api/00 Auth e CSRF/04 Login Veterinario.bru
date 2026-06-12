@@ -1,0 +1,36 @@
+meta {
+  name: Login Veterinario
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/clinica/api/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  X-CSRF-Token: {{csrfToken}}
+}
+
+body:json {
+  {
+    "email": "vet@exemplo.com",
+    "senha": "senha123",
+    "lembrar": false
+  }
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+
+  test("usuario com papel VETERINARIO", function() {
+    expect(res.body.success).to.equal(true);
+    expect(res.body.user.role).to.equal("VETERINARIO");
+  });
+}

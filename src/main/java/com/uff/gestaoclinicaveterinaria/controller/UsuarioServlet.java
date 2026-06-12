@@ -283,6 +283,7 @@ public class UsuarioServlet extends HttpServlet {
             return;
         }
 
+        usuarioDAO.atualizarNome(id, nome);
         usuarioDAO.atualizarEmail(id, email);
         usuarioDAO.atualizarRole(id, role);
 

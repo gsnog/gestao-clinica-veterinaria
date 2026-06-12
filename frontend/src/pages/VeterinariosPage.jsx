@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import Topbar from "../components/Topbar";
+import SearchBar from "../components/SearchBar";
+import DataTable from "../components/DataTable";
 import domainService from "../services/domainService";
 import { normalizeText } from "../utils/formatters";
 
@@ -53,61 +55,36 @@ function VeterinariosPage() {
     }
   }
 
+  const columns = [
+    { key: "nome", header: "Nome", render: (veterinario) => veterinario.nome },
+    { key: "crmv", header: "CRMV", render: (veterinario) => veterinario.crmv },
+    { key: "especialidade", header: "Especialidade", render: (veterinario) => veterinario.especialidade },
+    { key: "id", header: "ID", render: (veterinario) => `#${veterinario.id}` },
+    {
+      key: "acoes",
+      header: "Ações",
+      render: (veterinario) => (
+        <div className="actions">
+          <Link className="btn btn-edit" to={`/veterinarios/${veterinario.id}/editar`}>
+            Editar
+          </Link>
+          <button type="button" className="btn btn-danger" onClick={() => remover(veterinario.id)}>
+            Excluir
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <main className="main">
       <Topbar title="Veterinários" subtitle="Equipe médica da clínica" />
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Busca Nome, CRMV, especialidade ou ID"
-          value={busca}
-          onChange={(event) => setBusca(event.target.value)}
-        />
-      </div>
+      <SearchBar placeholder="Busca Nome, CRMV, especialidade ou ID" value={busca} onChange={setBusca} />
 
       {erro ? <p className="filter-feedback mb-16">{erro}</p> : null}
 
-      <section className="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>CRMV</th>
-              <th>Especialidade</th>
-              <th>ID</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {veterinariosFiltrados.map((veterinario) => (
-              <tr key={veterinario.id}>
-                <td>{veterinario.nome}</td>
-                <td>{veterinario.crmv}</td>
-                <td>{veterinario.especialidade}</td>
-                <td>#{veterinario.id}</td>
-                <td>
-                  <div className="actions">
-                    <Link
-                      className="btn btn-edit"
-                      to={`/veterinarios/${veterinario.id}/editar`}
-                    >
-                      Editar
-                    </Link>
-                    <button
-                      type="button"
-                      className="btn btn-danger"
-                      onClick={() => remover(veterinario.id)}
-                    >
-                      Excluir
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <DataTable columns={columns} data={veterinariosFiltrados} rowKey={(veterinario) => veterinario.id} emptyMessage="Nenhum veterinário encontrado." />
     </main>
   );
 }

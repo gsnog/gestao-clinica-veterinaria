@@ -25,7 +25,8 @@ public class ApiVeterinarioServlet extends ApiServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!"VETERINARIO".equals(roleUsuarioLogado(request))) {
+        String role = roleUsuarioLogado(request);
+        if (!"VETERINARIO".equals(role) && !"ADMIN".equals(role)) {
             responderErro(response, HttpServletResponse.SC_FORBIDDEN, "Acesso restrito a veterinários.");
             return;
         }

@@ -120,6 +120,19 @@ public class UsuarioDAOImpl implements UsuarioDAO {
     }
 
     @Override
+    public void atualizarNome(Long id, String nome) {
+        String sql = "UPDATE usuario SET nome = ? WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nome);
+            stmt.setLong(2, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar nome do usuário.", e);
+        }
+    }
+
+    @Override
     public void atualizarSenha(Long id, String senhaHash, String salt) {
         String sql = "UPDATE usuario SET senha_hash = ?, salt = ? WHERE id = ?";
         try (Connection conn = ConnectionFactory.getConexao();

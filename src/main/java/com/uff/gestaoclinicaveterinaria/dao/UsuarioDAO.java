@@ -10,6 +10,7 @@ public interface UsuarioDAO {
     Usuario buscarPorId(Long id);
     void deletar(Long id);
     void atualizarEmail(Long id, String email);
+    void atualizarNome(Long id, String nome);
     void atualizarSenha(Long id, String senhaHash, String salt);
     List<Usuario> listarTodos();
     void atualizarRole(Long id, String role);
