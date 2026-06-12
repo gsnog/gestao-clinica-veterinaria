@@ -1,0 +1,36 @@
+meta {
+  name: Atualizar Pet
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:8080/clinica/api/pets
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "id": 1,
+    "nome": "QA Pet Bruno Atualizado",
+    "raca": "SRD",
+    "dataNascimento": "2021-05-10",
+    "tutorId": 1
+  }
+}
+
+tests {
+  test("status HTTP esperado", function() {
+    expect([200]).to.include(res.status);
+  });
+
+  test("resposta em JSON", function() {
+    expect(res.headers["content-type"]).to.contain("application/json");
+  });
+}

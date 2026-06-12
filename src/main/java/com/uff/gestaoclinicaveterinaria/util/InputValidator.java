@@ -33,6 +33,10 @@ public class InputValidator {
         return telefone != null && telefone.matches("\\(\\d{2}\\)\\s\\d{4,5}-\\d{4}");
     }
 
+    public static boolean crmvValido(String crmv) {
+        return crmv != null && crmv.matches("CRMV-[A-Z]{2} [0-9]{5}");
+    }
+
     public static boolean codigoRecuperacaoValido(String codigo) {
         return codigo != null && codigo.matches("^[0-9]{6}$");
     }

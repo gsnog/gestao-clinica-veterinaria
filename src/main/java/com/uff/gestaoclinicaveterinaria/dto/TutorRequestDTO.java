@@ -1,4 +1,4 @@
 package com.uff.gestaoclinicaveterinaria.dto;
 
-public record TutorRequestDTO(String nome, String telefone) {
+public record TutorRequestDTO(Long id, String nome, String telefone) {
 }
