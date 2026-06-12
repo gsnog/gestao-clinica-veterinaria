@@ -39,14 +39,19 @@ src/main/
 
 ## 🚀 Como Rodar
 
-### Backend — Docker
+O front (React) já está publicado no GitHub Pages e o back (Java/Tomcat + PostgreSQL) roda na sua máquina via Docker. Basta clonar o repo, subir o Docker e abrir o link do GitHub Pages.
 
-Sobe o backend (Tomcat) + banco de dados (PostgreSQL) com um único comando, sem precisar instalar Java, Maven, Tomcat ou Postgres na máquina.
+### Passo 1 — Pré-requisitos
+- Docker e Docker Compose instalados e em execução (Docker Desktop já inclui os dois)
 
-#### Pré-requisitos
-- Docker e Docker Compose (Docker Desktop já inclui os dois)
+### Passo 2 — Clonar o repositório
 
-#### 1. Build e start
+```bash
+git clone https://github.com/gsnog/gestao-clinica-veterinaria.git
+cd gestao-clinica-veterinaria
+```
+
+### Passo 3 — Subir o backend (Docker)
 
 Na raiz do projeto:
 
@@ -54,19 +59,39 @@ Na raiz do projeto:
 docker compose up -d --build
 ```
 
-Isso cria dois containers:
-- **db**: PostgreSQL 16, banco `clinica`, usuário `vet_admin` / senha `vet_admin`, exposto em `localhost:5433` (as tabelas/views/índices/seed de `src/main/resources/db` são criados automaticamente na primeira vez)
-- **backend**: build do projeto com Maven + deploy no Tomcat 11, exposto em `localhost:8080`
+Na primeira vez vai demorar um pouco (baixa as imagens e builda o projeto). Isso cria dois containers:
+- **db**: PostgreSQL 16, banco `clinica`, usuário `vet_admin` / senha `vet_admin`, exposto em `localhost:5433`. Na primeira inicialização, as tabelas/views/índices e os usuários de teste (`seed.sql`) de `src/main/resources/db` são criados automaticamente.
+- **backend**: build do projeto com Maven + deploy no Tomcat 11, exposto em `localhost:8080` (context path `/clinica`)
 
-#### 2. Acessar a aplicação
+Para confirmar que subiu certo:
+
+```bash
+docker compose logs -f backend
+```
+
+Aguarde a mensagem `Server startup in [...] milliseconds`. O backend estará em:
 
 ```
 http://localhost:8080/clinica
 ```
 
-Será redirecionado para login automaticamente.
+> Nota: o Postgres do Docker usa a porta **5433** (e não 5432) para não conflitar com um Postgres que já esteja instalado/rodando na sua máquina.
 
-#### 3. Comandos úteis
+### Passo 4 — Abrir o frontend (GitHub Pages)
+
+Com o backend rodando localmente, acesse o front já publicado:
+
+```
+https://gsnog.github.io/gestao-clinica-veterinaria/
+```
+
+O front é configurado (via `frontend/.env`, `VITE_API_BASE_URL`) para chamar `http://localhost:8080/clinica` — ou seja, o site no GitHub Pages conversa com o backend rodando na sua máquina. O `CorsFilter` do backend já libera a origem `https://gsnog.github.io`.
+
+### Passo 5 — Fazer login
+
+Use um dos usuários de teste criados pelo `seed.sql` (veja a seção "🧪 Testando Localmente" abaixo), ou cadastre um novo usuário pela tela de registro.
+
+### Comandos úteis (Docker)
 
 ```bash
 # ver logs do backend em tempo real
@@ -75,24 +100,12 @@ docker compose logs -f backend
 # parar os containers (mantém os dados do banco)
 docker compose down
 
-# parar e apagar também os dados do banco
+# parar e apagar também os dados do banco (refaz o seed na próxima subida)
 docker compose down -v
 
 # rebuildar depois de alterar o código Java
 docker compose up -d --build
 ```
-
-> Nota: o Postgres do Docker usa a porta **5433** (e não 5432) para não conflitar com um Postgres que já esteja instalado/rodando na sua máquina.
-
-### Frontend — GitHub Pages
-
-O frontend React já está publicado e pronto para uso, apontando para o backend local em `http://localhost:8080/clinica`:
-
-```
-https://gsnog.github.io/gestao-clinica-veterinaria/
-```
-
-Basta o backend (Docker, acima) estar rodando na sua máquina para o front conseguir fazer login e usar a aplicação.
 
 ## 🔐 Fluxo de Autenticação
 
