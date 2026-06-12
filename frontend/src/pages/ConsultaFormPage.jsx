@@ -34,6 +34,34 @@ function ConsultaFormPage() {
       });
   }, []);
 
+  useEffect(() => {
+    if (!id) return;
+
+    domainService
+      .listConsultas()
+      .then((result) => {
+        const consultas = result.items || result || [];
+        const consulta = consultas.find((item) => String(item?.id) === String(id));
+
+        if (!consulta) {
+          throw new Error();
+        }
+
+        setForm((prev) => ({
+          ...prev,
+          petId: consulta.pet?.id ? String(consulta.pet.id) : "",
+          veterinarioId: consulta.veterinario?.id ? String(consulta.veterinario.id) : "",
+          dataConsulta: consulta.dataConsulta ? consulta.dataConsulta.slice(0, 16) : "",
+          motivo: consulta.motivo || "",
+          observacao: consulta.diagnostico || "",
+        }));
+        setErro("");
+      })
+      .catch(() => {
+        setErro("Não foi possível carregar os dados da consulta.");
+      });
+  }, [id]);
+
   function onChange(event) {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
