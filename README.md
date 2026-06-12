@@ -39,12 +39,60 @@ src/main/
 
 ## 🚀 Como Rodar
 
-### Pré-requisitos
+### Opção A — Docker (recomendado)
+
+Sobe o backend (Tomcat) + banco de dados (PostgreSQL) com um único comando, sem precisar instalar Java, Maven, Tomcat ou Postgres na máquina.
+
+#### Pré-requisitos
+- Docker e Docker Compose (Docker Desktop já inclui os dois)
+
+#### 1. Build e start
+
+Na raiz do projeto:
+
+```bash
+docker compose up -d --build
+```
+
+Isso cria dois containers:
+- **db**: PostgreSQL 16, banco `clinica`, usuário `vet_admin` / senha `vet_admin`, exposto em `localhost:5433` (as tabelas/views/índices de `src/main/resources/db` são criados automaticamente na primeira vez)
+- **backend**: build do projeto com Maven + deploy no Tomcat 11, exposto em `localhost:8080`
+
+#### 2. Acessar a aplicação
+
+```
+http://localhost:8080/clinica
+```
+
+Será redirecionado para login automaticamente.
+
+#### 3. Comandos úteis
+
+```bash
+# ver logs do backend em tempo real
+docker compose logs -f backend
+
+# parar os containers (mantém os dados do banco)
+docker compose down
+
+# parar e apagar também os dados do banco
+docker compose down -v
+
+# rebuildar depois de alterar o código Java
+docker compose up -d --build
+```
+
+> Nota: o Postgres do Docker usa a porta **5433** (e não 5432) para não conflitar com um Postgres que já esteja instalado/rodando na sua máquina.
+
+### Opção B — Ambiente local (sem Docker)
+
+#### Pré-requisitos
 - JDK 21+
 - Maven 3.9+
 - PostgreSQL 12+
+- Tomcat 10/11 (ou outro servlet container compatível com Jakarta Servlet 6.1)
 
-### 1. Configurar Banco de Dados
+#### 1. Configurar Banco de Dados
 
 ```bash
 # Criar banco e usuário
@@ -58,7 +106,7 @@ psql -U vet_admin -d clinica -f src/main/resources/db/view.sql
 psql -U vet_admin -d clinica -f src/main/resources/db/index.sql
 ```
 
-### 2. Configurar Variáveis de Ambiente
+#### 2. Configurar Variáveis de Ambiente
 
 ```bash
 export DB_URL="jdbc:postgresql://localhost:5432/clinica"
@@ -77,23 +125,20 @@ export DB_PASSWORD="sua_senha"
 $CATALINA_HOME/bin/catalina.sh run
 ```
 
-### 3. Build e Deploy
+#### 3. Build e Deploy
 
 ```bash
 # Compilar e empacotar
 mvn clean package
 
-# Deploy em servidor (ex: Tomcat)
-cp target/gestao-clinica-veterinaria-1.0-SNAPSHOT.war $CATALINA_HOME/webapps/
-
-# Ou rodar em modo dev (com servlet container embarcado)
-mvn jetty:run  # se tiver jetty plugin, ou similar
+# Deploy em servidor (ex: Tomcat), com context path /clinica
+cp target/gestao-clinica-veterinaria-1.0-SNAPSHOT.war $CATALINA_HOME/webapps/clinica.war
 ```
 
-### 4. Acessar a Aplicação
+#### 4. Acessar a Aplicação
 
 ```
-http://localhost:8080/gestao-clinica-veterinaria
+http://localhost:8080/clinica
 ```
 
 Será redirecionado para login automaticamente.
@@ -261,6 +306,25 @@ veterinario_id (FK → usuario.id onde role=VETERINARIO)
 | `DB_URL` | URL de conexão PostgreSQL | `jdbc:postgresql://localhost:5432/clinica` |
 | `DB_USER` | Usuário BD | `postgres` |
 | `DB_PASSWORD` | Senha BD | `postgres` |
+| `FRONTEND_ORIGIN` | Origem do front liberada no CORS (`CorsFilter`) | `http://localhost:5173` |
+
+> No `docker-compose.yml`, `DB_URL`/`DB_USER`/`DB_PASSWORD` já vêm configurados para o container `db` (Postgres na porta 5433 do host, `5432` dentro da rede do Docker).
+
+## 🌐 Frontend (React) + GitHub Pages
+
+O frontend React fica em `frontend/` e é publicado no GitHub Pages via `.github/workflows/deploy.yml` (build + deploy automático a cada push na `main`).
+
+- **URL de produção**: https://gsnog.github.io/gestao-clinica-veterinaria/
+- **Base URL da API**: configurada em `frontend/.env` (`VITE_API_BASE_URL`), apontando por padrão para `http://localhost:8080/clinica` — ou seja, mesmo com o front publicado no GitHub Pages, ele continua chamando o backend rodando na sua máquina local.
+- **CORS**: o `CorsFilter` (`src/main/java/.../filter/CorsFilter.java`) libera as origens `http://localhost:5173` (dev local do Vite) e `https://gsnog.github.io` (GitHub Pages) para acessar `/api/*` com cookies de sessão.
+
+Para rodar o front localmente:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
 ## 🧪 Testando Localmente
 
