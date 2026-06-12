@@ -27,8 +27,16 @@
         <session-timeout>30</session-timeout>
         <cookie-config>
             <http-only>true</http-only>
-            <!-- Ativar secure=true em produção (HTTPS). Em dev HTTP local pode remover. -->
-            <!-- <secure>true</secure> --> <!-- descomenta só em HTTPS/prod -->
+            <!--
+                Front roda no GitHub Pages (https://gsnog.github.io) e o back
+                localmente (http://localhost:8080), ou seja, requisição
+                cross-site. Para o cookie de sessão ser enviado de volta nesse
+                cenário, é obrigatório SameSite=None + Secure.
+                Navegadores tratam "localhost" como origem segura mesmo em
+                HTTP, então Secure funciona aqui sem precisar de HTTPS local.
+            -->
+            <secure>true</secure>
+            <same-site>None</same-site>
         </cookie-config>
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
