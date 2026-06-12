@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Front roda no GitHub Pages (https://gsnog.github.io) e o back localmente
+    (http://localhost:8080): requisição cross-site. Para o navegador devolver
+    o cookie de sessão (JSESSIONID) nesse cenário, ele precisa de
+    SameSite=None, o que exige Secure (definido em WEB-INF/web.xml).
+-->
+<Context>
+    <CookieProcessor className="org.apache.tomcat.util.http.Rfc6265CookieProcessor"
+                      sameSiteCookies="none" />
+</Context>

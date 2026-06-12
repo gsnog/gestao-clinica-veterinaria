@@ -31,12 +31,12 @@
                 Front roda no GitHub Pages (https://gsnog.github.io) e o back
                 localmente (http://localhost:8080), ou seja, requisição
                 cross-site. Para o cookie de sessão ser enviado de volta nesse
-                cenário, é obrigatório SameSite=None + Secure.
+                cenário, é obrigatório SameSite=None + Secure (configurado via
+                META-INF/context.xml, que define o CookieProcessor).
                 Navegadores tratam "localhost" como origem segura mesmo em
                 HTTP, então Secure funciona aqui sem precisar de HTTPS local.
             -->
             <secure>true</secure>
-            <same-site>None</same-site>
         </cookie-config>
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
